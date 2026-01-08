@@ -1,0 +1,63 @@
+.programs {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+.programs-content {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.settings-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+
+/* TOGGLE */
+.toggle {
+  width: 46px;
+  height: 26px;
+  background: #d1d5db;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.toggle span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle.on {
+  background: #22c55e;
+}
+
+.toggle.on span {
+  transform: translateX(20px);
+}

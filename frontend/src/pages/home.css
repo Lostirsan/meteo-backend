@@ -1,0 +1,48 @@
+.home {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+.home-content {
+  padding: 20px;
+}
+
+.empty-state {
+  max-width: 720px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.empty-state p {
+  margin: 0 0 16px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.empty-box {
+  border-radius: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(10px);
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.empty-box span {
+  font-weight: 600;
+}
+
+.empty-box small {
+  color: #6b7280;
+}

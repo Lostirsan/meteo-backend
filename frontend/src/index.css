@@ -1,0 +1,28 @@
+/* RESET EVERYTHING */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* FULL VIEWPORT FIX */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+/* React root */
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* remove browser default background */
+body {
+  background: #0f2027;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}

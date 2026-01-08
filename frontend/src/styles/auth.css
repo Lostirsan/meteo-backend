@@ -1,0 +1,102 @@
+.auth-page {
+  min-height: 100vh; /* 👈 важно */
+  width: 100vw;      /* 👈 добавим */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.auth-card {
+  background: #ffffff;
+  padding: 40px;
+  width: 360px;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-card h1 {
+  margin: 0;
+  color: #2c5364;
+  font-size: 26px;
+  text-align: center;
+}
+
+.auth-card p {
+  margin: 0;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.auth-card input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #2c5364;
+}
+
+.auth-card .primary {
+  margin-top: 10px;
+  padding: 12px;
+  background: #2c5364;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.auth-card .primary:hover {
+  background: #244653;
+}
+
+.auth-card .hint {
+  font-size: 12px;
+  text-align: center;
+  color: #9ca3af;
+}
+.error {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: center;
+}
+.switch-link {
+  margin-top: 14px;
+  color: #e5e7eb;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.switch-link {
+  margin-top: 12px;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.switch-link.dark {
+  color: #374151;
+}
+.error {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.success {
+  color: #16a34a;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 8px;
+}
