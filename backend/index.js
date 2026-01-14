@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
@@ -8,12 +9,52 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ===== Health check ===== */
+/* =========================
+   HEALTH CHECK
+========================= */
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* ===== REGISTER ===== */
+/* =========================
+   WEATHER (Košice)
+========================= */
+app.get("/api/weather", async (req, res) => {
+  try {
+    const city = "Kosice";
+    const apiKey = process.env.WEATHER_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ error: "Weather API key missing" });
+    }
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.cod !== 200) {
+      return res.status(500).json({ error: "Weather API error", details: data });
+    }
+
+    res.json({
+      city: data.name,
+      temp: data.main.temp,
+      humidity: data.main.humidity,
+      wind: data.wind.speed,
+      description: data.weather[0].description,
+      icon: data.weather[0].icon,
+      time: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error("Weather error:", err);
+    res.status(500).json({ error: "Weather API failed" });
+  }
+});
+
+/* =========================
+   REGISTER
+========================= */
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
 
@@ -21,20 +62,23 @@ app.post("/api/register", async (req, res) => {
     return res.status(400).json({ message: "Missing fields" });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     db.prepare(
       "INSERT INTO users (username, password) VALUES (?, ?)"
     ).run(username, hashedPassword);
 
     res.json({ success: true });
   } catch (err) {
+    console.error(err);
     res.status(409).json({ message: "User already exists" });
   }
 });
 
-/* ===== LOGIN ===== */
+/* =========================
+   LOGIN
+========================= */
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -61,7 +105,9 @@ app.post("/api/login", async (req, res) => {
   });
 });
 
-/* ===== SERVER START ===== */
+/* =========================
+   SERVER START
+========================= */
 app.listen(3001, () => {
   console.log("Backend running on http://localhost:3001");
 });

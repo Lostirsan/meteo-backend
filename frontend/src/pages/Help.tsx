@@ -2,38 +2,26 @@ import AppLayout from "../layouts/AppLayout";
 import "./help.css";
 
 export default function Help() {
-  const handleChat = () => {
-    alert("Live chat will be available soon 👨‍💻💬");
-  };
-
   return (
-    <AppLayout>
+    <AppLayout title="❓ Help & Support">
       <main className="help-content">
-        <h2>❓ Help & Support</h2>
-        <p className="subtitle">
-          Need help with Smart Irrigation? Contact us anytime.
-        </p>
+        <div className="help-wrap">
+          <h2>❓ Help & Support</h2>
+          <p>Need help with Smart Irrigation? Contact us anytime.</p>
 
-        <div className="help-card">
-          <div className="help-item">
-            <span className="icon">📧</span>
-            <div>
-              <strong>Email</strong>
-              <p>support@smartirrigation.com</p>
+          <div className="help-card">
+            <div className="help-row">
+              <span>📧 Email</span>
+              <strong>support@smartirrigation.com</strong>
             </div>
-          </div>
 
-          <div className="help-item">
-            <span className="icon">📞</span>
-            <div>
-              <strong>Phone</strong>
-              <p>+421 900 123 456</p>
+            <div className="help-row">
+              <span>📞 Phone</span>
+              <strong>+421 900 123 456</strong>
             </div>
-          </div>
 
-          <button className="chat-btn" onClick={handleChat}>
-            💬 Live chat
-          </button>
+            <button className="live-chat">🟢 Live chat</button>
+          </div>
         </div>
       </main>
     </AppLayout>

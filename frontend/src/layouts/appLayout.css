@@ -1,0 +1,17 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  height: 64px;
+  flex-shrink: 0;
+}
+
+/* Область страниц */
+.app-main {
+  flex: 1;              /* ЗАНИМАЕТ ВСЁ ОСТАЛЬНОЕ */
+  display: flex;
+}

@@ -26,10 +26,9 @@ export default function App() {
         path="/programs"
         element={user ? <Programs /> : <Navigate to="/register" />}
       />
-      <Route
-  path="/help"
-  element={user ? <Help /> : <Navigate to="/register" />}
-/>
+      <Route path="/help" element={user ? <Help /> : <Navigate to="/register" />} />
+
+
 
 
       {/* FALLBACK */}

@@ -46,3 +46,30 @@
 .empty-box small {
   color: #6b7280;
 }
+.weather-card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 420px;
+  margin-top: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.weather-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.weather-top img {
+  width: 80px;
+  height: 80px;
+}
+
+.weather-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+  font-size: 16px;
+}

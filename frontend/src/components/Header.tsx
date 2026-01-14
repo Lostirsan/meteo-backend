@@ -13,19 +13,22 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   const getTitle = () => {
-    switch (location.pathname) {
-      case "/dashboard":
-        return "Home";
-      case "/programs":
-        return "⚙️ Programs";
-      case "/actions":
-        return "🚿 Actions";
-      case "/reports":
-        return "📊 Reports";
-      default:
-        return "Smart Irrigation";
-    }
-  };
+  switch (location.pathname) {
+    case "/dashboard":
+      return "🏠 Home";
+    case "/programs":
+      return "Application settings";
+    case "/actions":
+      return "🚿 Actions";
+    case "/reports":
+      return "📊 Reports";
+    case "/help":
+      return "❓ Help & Support";
+    default:
+      return "";
+  }
+};
+
 
   return (
     <header className="header">

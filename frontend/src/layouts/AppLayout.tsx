@@ -1,24 +1,23 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import "./appLayout.css";
 
-type Props = {
+export default function AppLayout({
+  children
+}: {
   children: React.ReactNode;
-};
-
-export default function AppLayout({ children }: Props) {
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <>
+    <div className="app-layout">
       <Header onMenuClick={() => setSidebarOpen(true)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      {children}
-    </>
+      <div className="app-main">
+        {children}
+      </div>
+    </div>
   );
 }
