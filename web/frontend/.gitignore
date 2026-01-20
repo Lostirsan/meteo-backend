@@ -22,3 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# node
+node_modules/
+npm-debug.log
+
+# env
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# build
+dist/
+build/
+
+# database dumps (если реальные данные)
+*.dump

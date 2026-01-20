@@ -1,146 +1,145 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext.tsx";
-import "../styles/auth.css";
+import "./auth.css"; // НЕ УДАЛЯЙ, файл должен существовать
 
 type Props = {
   mode?: "login" | "register";
 };
 
 export default function AuthCard({ mode = "login" }: Props) {
-  const isRegister = mode === "register";
-
   const navigate = useNavigate();
   const { setUser } = useUser();
+
+  const isRegister = mode === "register";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
 
-  /* ===== REGISTER ===== */
-  const handleRegister = async () => {
-    setError("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    if (password !== confirm) {
+  const api = "http://localhost:3001/api";
+
+  const doLogin = async (u: string, p: string) => {
+    const res = await fetch(`${api}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data?.success || !data?.user) {
+      throw new Error(data?.message || "Invalid credentials");
+    }
+
+    setUser(data.user);
+    navigate("/dashboard");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const u = username.trim();
+    const p = password;
+
+    if (!u || !p) {
+      setError("Fill username & password");
+      return;
+    }
+
+    if (isRegister && p !== confirm) {
       setError("Passwords do not match");
       return;
     }
 
+    setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+      if (isRegister) {
+        const res = await fetch(`${api}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p }),
+        });
 
-      const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        setError(data.message || "Registration failed");
+        if (!res.ok) {
+          // твой backend шлёт 409 "User already exists"
+          throw new Error(data?.message || "Register failed");
+        }
+
+        // ✅ сразу логиним
+        await doLogin(u, p);
         return;
       }
 
-      // сохраняем пользователя во фронте
-      setUser({
-        id: Date.now(), // временно, позже будет id с backend
-        username
-      });
-
-      // переход на основной экран
-      navigate("/dashboard");
-    } catch {
-      setError("Backend is not running");
-    }
-  };
-
-  /* ===== LOGIN ===== */
-  const handleLogin = async () => {
-    setError("");
-
-    try {
-      const res = await fetch("http://localhost:3001/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Login failed");
-        return;
-      }
-
-      // сохраняем пользователя
-      setUser({
-        id: data.user.id,
-        username: data.user.username
-      });
-
-      // переход на dashboard
-      navigate("/dashboard");
-    } catch {
-      setError("Backend is not running");
+      // login
+      await doLogin(u, p);
+    } catch (err: any) {
+      setError(err?.message || "Error");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-card">
-      <h1>{isRegister ? "Create Account" : "Smart Irrigation"}</h1>
-      <p>
-        {isRegister
-          ? "Register new greenhouse account"
-          : "Greenhouse Control System"}
-      </p>
+      <h2>{isRegister ? "Create Account" : "Login"}</h2>
 
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      {isRegister && (
+      <form onSubmit={handleSubmit} className="auth-form">
         <input
-          type="password"
-          placeholder="Confirm password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          autoComplete="username"
         />
-      )}
 
-      <button
-        className="primary"
-        onClick={isRegister ? handleRegister : handleLogin}
-      >
-        {isRegister ? "Register" : "Log in"}
-      </button>
+        <input
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          autoComplete={isRegister ? "new-password" : "current-password"}
+        />
 
-      {error && <div className="error">{error}</div>}
+        {isRegister && (
+          <input
+            placeholder="Confirm password"
+            type="password"
+            value={confirm}
+            onChange={e => setConfirm(e.target.value)}
+            autoComplete="new-password"
+          />
+        )}
 
-      {isRegister ? (
-        <Link to="/login" className="switch-link dark">
-          Already have an account? Log in
-        </Link>
-      ) : (
-        <Link to="/register" className="switch-link dark">
-          Create new account
-        </Link>
-      )}
+        {error && <div className="auth-error">{error}</div>}
 
-      <span className="hint">
-        {isRegister
-          ? "Registration demo only"
-          : "Use your registered credentials"}
-      </span>
+        <button className="auth-btn" type="submit" disabled={loading}>
+          {loading ? "..." : isRegister ? "Register" : "Login"}
+        </button>
+      </form>
+
+      <div className="auth-switch">
+        {isRegister ? (
+          <>
+            Already have an account?{" "}
+            <span className="auth-link" onClick={() => navigate("/login")}>
+              Login
+            </span>
+          </>
+        ) : (
+          <>
+            No account?{" "}
+            <span className="auth-link" onClick={() => navigate("/register")}>
+              Register
+            </span>
+          </>
+        )}
+      </div>
     </div>
   );
 }
