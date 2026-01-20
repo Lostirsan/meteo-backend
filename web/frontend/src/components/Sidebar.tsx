@@ -48,14 +48,6 @@ export default function Sidebar({ open, onClose }: Props) {
             ⚙️ Programs
           </button>
 
-          <button
-            className={`menu-item ${
-              location.pathname === "/actions" ? "active" : ""
-            }`}
-            onClick={() => goTo("/actions")}
-          >
-            🚿 Actions
-          </button>
 
           <button
             className={`menu-item ${

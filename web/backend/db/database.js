@@ -1,14 +1,12 @@
-import Database from "better-sqlite3";
+import pg from "pg";
+const { Pool } = pg;
 
-const db = new Database("users.db");
+const pool = new Pool({
+  host: process.env.PGHOST,
+  port: Number(process.env.PGPORT),
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+});
 
-// создаём таблицу, если нет
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
-  )
-`).run();
-
-export default db;
+export default pool;
