@@ -31,6 +31,26 @@ CREATE TABLE IF NOT EXISTS plants (
     light_max REAL
 );
 
+CREATE TABLE IF NOT EXISTS user_devices (
+  user_id INT UNIQUE,
+  device_name TEXT,
+  device_uid TEXT,
+  plant_id INT REFERENCES plants(id)
+);
+
+CREATE TABLE IF NOT EXISTS measurements (
+  id SERIAL PRIMARY KEY,
+  device_id TEXT,
+  time TIMESTAMP,
+  air_temp FLOAT,
+  air_hum FLOAT,
+  air_press FLOAT,
+  gas FLOAT,
+  water_temp FLOAT,
+  soil FLOAT,
+  light FLOAT
+);
+
 INSERT INTO plants (
   name,
   air_temp_min, air_temp_max,
