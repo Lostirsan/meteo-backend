@@ -42,3 +42,19 @@ build/
 
 # database dumps (если реальные данные)
 *.dump
+# IDE
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# MQTT runtime data
+mqtt-broker/data/
+mqtt-broker/log/
+
+# Node
+node_modules/
+
+# Env
+.env

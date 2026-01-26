@@ -1,44 +1,29 @@
-import AppLayout from "../layouts/AppLayout.tsx";
-import "./home.css";
+  import AppLayout from "../layouts/AppLayout.tsx";
+  import "./home.css";
 
-export default function Dashboard() {
-  return (
-    <AppLayout title="Home">
-      <div className="home-content">
-        <h3 className="section-title">Your Greenhouses</h3>
+  export default function Dashboard() {
+    return (
+      <AppLayout>
+        <div className="dashboard">
 
-        <div className="grid">
-          <div className="card">
-            <img src="https://via.placeholder.com/300x200" alt="Front Garden" />
-            <span>Front Garden</span>
+          <div className="weather-panel">
+            <div className="weather-temp">5°</div>
+            <div className="weather-city">Košice</div>
+
+            <div className="weather-spacer" />
+
+            <div className="weather-menu">
+              <button>Устройства</button>
+              <button>Аналитика</button>
+              <button>Настройки</button>
+            </div>
           </div>
 
-          <div className="card">
-            <img src="https://via.placeholder.com/300x200" alt="Back Yard" />
-            <span>Back Yard</span>
+          <div className="dashboard-main">
+            ЦЕНТР
           </div>
 
-          <div className="card add">
-            <span>＋ Add greenhouse</span>
-          </div>
         </div>
-
-        <h3 className="section-title">Forecast & Observations</h3>
-
-        <div className="forecast">
-          <div className="forecast-card">
-            <strong>Today</strong>
-            <span>🌡 12°C</span>
-            <span>💧 65%</span>
-          </div>
-
-          <div className="forecast-card">
-            <strong>Tomorrow</strong>
-            <span>🌡 15°C</span>
-            <span>💧 60%</span>
-          </div>
-        </div>
-      </div>
-    </AppLayout>
-  );
-}
+      </AppLayout>
+    );
+  }

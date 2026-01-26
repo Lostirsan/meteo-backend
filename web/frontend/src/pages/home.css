@@ -1,75 +1,96 @@
-.home {
-  min-height: 100vh;
-  background: #f3f4f6;
-}
+/* ЛЕВАЯ ПАНЕЛЬ С ПОГОДОЙ */
+.weather-panel {
+  position: fixed;
+  top: 64px;
+  left: 0;
 
-.home-content {
+  width: 260px;
+  height: calc(100vh - 64px);
+
+  background: linear-gradient(180deg, #6dbf8b, #1b3a2e);
+  color: white;
+
   padding: 20px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
 }
 
-.empty-state {
-  max-width: 720px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+
+/* ПОГОДА */
+.weather-temp {
+  font-size: 42px;
+  font-weight: 600;
 }
 
-.empty-state h2 {
-  margin: 0 0 8px;
-  font-size: 22px;
+.weather-city {
+  margin-top: 6px;
+  font-size: 14px;
 }
 
-.empty-state p {
-  margin: 0 0 16px;
-  color: #4b5563;
-  line-height: 1.4;
+.weather-desc {
+  margin-top: 12px;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
-.empty-box {
-  border-radius: 16px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(10px);
-  border: 1px dashed rgba(0, 0, 0, 0.15);
+.weather-date {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.weather-stats {
+  margin-top: 18px;
+  font-size: 13px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.empty-box span {
-  font-weight: 600;
-}
-
-.empty-box small {
-  color: #6b7280;
-}
-.weather-card {
-  background: rgba(255,255,255,0.95);
-  border-radius: 20px;
-  padding: 20px;
-  max-width: 420px;
-  margin-top: 20px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-}
-
-.weather-top {
+/* ⬇️ МЕНЮ ПОД ПОГОДОЙ */
+.weather-menu {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding-bottom: 12px;
 }
 
-.weather-top img {
-  width: 80px;
-  height: 80px;
+
+.weather-menu button {
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-align: left;
+  font-size: 15px;
 }
 
-.weather-grid {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  text-align: center;
-  font-size: 16px;
+.weather-spacer {
+  flex: 1;   /* ⬅️ занимает всё свободное место */
+}
+
+
+.weather-menu-item {
+  background: transparent;
+  border: none;
+  color: #e5e7eb;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.weather-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ЦЕНТР — НЕ ТРОГАЕМ */
+.dashboard {
+  margin-left: 260px;
 }

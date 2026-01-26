@@ -1,6 +1,22 @@
 .dashboard {
+  background: var(--bg-main);
   display: flex;
-  height: calc(100vh - 60px);
+  min-height: 100vh;   /* ⬅️ ВАЖНО */
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.weather-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: auto; /* ⬅️ ВАЖНО: прижимает к низу */
 }
 
 /* LEFT WEATHER */
@@ -9,9 +25,11 @@
   background: linear-gradient(180deg, #6dbf8b, #1b3a2e);
   color: white;
   padding: 24px;
+
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 24px;               /* ⬅ расстояние между блоками */
+height: 64%;
   border-radius: 0 20px 20px 0;
 }
 
@@ -21,23 +39,26 @@
 }
 
 .weather-city {
-  font-size: 20px;
+  font-size: 26px;
   margin-top: -10px;
 }
 
 .weather-desc {
-  opacity: 0.8;
+  font-size: 26px;
+  opacity: 0.9;
 }
 
 .weather-date {
-  font-size: 14px;
+  font-size: 26px;
   margin-top: 6px;
   opacity: 0.7;
 }
 
 .weather-stats {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+    font-size: 20px;
+  font-weight: 500;
   margin-top: 12px;
 }
 
@@ -48,30 +69,65 @@
 
 /* RIGHT */
 .dashboard-main {
-  flex: 1;
-  padding: 30px;
-  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
 }
 
+
+/* KPI CARD */
 .kpi-card {
-  background: rgba(255,255,255,0.1);
-  padding: 18px;
-  border-radius: 16px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  padding: 32px;
+  border-radius: 20px;
+
   display: flex;
   flex-direction: column;
-  font-size: 14px;
+  justify-content: center;
+  gap: 10px;
+
+  text-align: left;
+}
+/* KPI TITLE */
+.kpi-label {
+  font-size: 22px;
+  font-weight: 600;
+  opacity: 0.85;
 }
 
 .kpi-card strong {
-  font-size: 22px;
-  margin-top: 6px;
+  font-size: 56px;        /* 🔥 ГЛАВНОЕ */
+  font-weight: 900;
+  line-height: 1;
 }
+.kpi-card .unit {
+  font-size: 26px;
+  margin-left: 6px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+/* TIME */
+.kpi-time {
+  font-size: 32px;
+  font-weight: 700;
+}
+/* ===== FORCE KPI TITLE SIZE ===== */
+.kpi-card span {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  line-height: 1.3;
+}
+
+
+
 
 .charts {
   display: grid;
@@ -91,12 +147,12 @@
   opacity: 0.8;
 }
 .connect-device-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
 }
+
+
 
 .connect-btn {
   background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -129,6 +185,12 @@
   align-items: center;
   z-index: 100;
 }
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 
 .modal {
   background: white;
@@ -180,13 +242,15 @@
   cursor: pointer;
 }
 .connected-device {
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 12px;
-  background: rgba(34,197,94,.1);
   border-radius: 12px;
-  text-align: center;
-  font-size: 14px;
+  background: rgba(255,255,255,0.06);
+
+  height: auto;        /* ⬅️ ВАЖНО */
+  align-self: flex-start; /* ⬅️ ВАЖНО */
 }
+
 .plant-row{
   display:flex;
   gap:8px;
@@ -225,5 +289,337 @@
 }
 
 .placeholder-btn:hover {
-  background: #111827;
+  background: #ededed;
+}
+.weather-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weather-menu button {
+  width: 100%;
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #ffffff;
+
+  padding: 18px 20px;          /* ⬅ больше воздуха */
+  border-radius: 14px;
+
+  text-align: left;
+  font-size: 20px;             /* ⬅ КРУПНЕЕ ТЕКСТ */
+  font-weight: 600;            /* ⬅ ЧИТАЕМО */
+
+  letter-spacing: 0.2px;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+
+.weather-menu button:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateX(4px);   /* ⬅ ощущение навигации */
+}
+
+.device-card {
+  width: 1500px;
+  padding: 32px;
+
+background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  height: auto;
+  align-self: flex-start;
+
+  margin-top: 59px;
+   max-width: 1200px;      /* ⬅ аккуратная ширина */
+
+  margin: 40px auto;     /* ⬅ ВОТ ОНА, НАСТОЯЩАЯ ЦЕНТРОВКА */
+
+  border: 1px solid #e5e7eb;         /* ⬅ ТОНКАЯ ГРАНИЦА */
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.04);   /* ⬅ МЯГКАЯ ТЕНЬ */
+}
+
+.device-title {
+  font-size: 24px;
+  font-weight: 700;
+}
+.device-id {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+
+
+.device-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+
+  justify-items: center;   /* ⬅ центр по горизонтали */
+  align-items: center;     /* ⬅ центр по вертикали */
+
+  margin-top: 20px;
+}
+
+
+.device-metric {
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 76px;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+.device-metric span {
+  font-size: 26px;      /* ⬅ УВЕЛИЧИВАЕТ Temp / Humidity / Soil / Light */
+  font-weight: 700;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+.device-metric strong {
+  font-size: 26px;
+  margin-top: 8px;
+}
+
+.device-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+
+.device-reset {
+  background: #c0392b;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+/* ===== FORCE KPI SIZE ===== */
+.kpi-card strong {
+  font-size: 64px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+.kpi-card .unit {
+  font-size: 28px !important;
+}
+
+/* KPI title: Temp / Humidity / Soil / Light */
+.kpi-label {
+  font-size: 24px;      /* ⬅ ВОТ ЭТО УВЕЛИЧИВАЕТ ТЕКСТ */
+  font-weight: 600;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+/* Device info at bottom of green panel */
+.weather-device {
+background: var(--bg-card);
+  color: var(--text-main);     /* ⬅ ЧЁРНЫЙ (мягкий, читаемый) */
+
+  padding: 20px 28px;
+  border-radius: 16px;
+
+  width: 420px;
+  max-width: 90vw;
+
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+
+.weather-device-title {
+  font-size: 20px;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.weather-device-name {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.weather-device-plant {
+  margin-top: 6px;
+  font-size: 15px;
+  opacity: 0.95;
+}
+
+.add-device-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+
+
+.add-device-card:hover {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+
+.add-device-plus {
+  font-size: 64px;
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.add-device-text {
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+
+.connect-device-under-device {
+  margin-bottom: 24px;
+}
+
+
+.add-device-card {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+
+  width: 680px;              /* ⬅ ШИРЕ */
+  max-width: 92vw;
+  height: 160px;             /* ⬅ ВЫШЕ */
+
+  border: 2px dashed #2ecc71;
+  border-radius: 20px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--bg-soft);
+  color: var(--text-main);
+
+  cursor: pointer;
+  z-index: 100;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* ===== THEME VARIABLES ===== */
+body {
+  --bg-main: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-soft: #f1f5f9;
+
+  --text-main: #0f172a;
+  --text-muted: #475569;
+
+  --border-color: #e5e7eb;
+}
+
+body.dark {
+  --bg-main: #0f172a;
+  --bg-card: #1e293b;
+  --bg-soft: #020617;
+
+  --text-main: #e5e7eb;
+  --text-muted: #94a3b8;
+
+  --border-color: #334155;
+}
+
+/* ОБЯЗАТЕЛЬНО */
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+.header {
+  background: linear-gradient(90deg, #ffffff, #f7f7f7);
+}
+
+body.dark .header {
+  background: linear-gradient(90deg, #064e3b, #022c22);
+}
+
+.plant-click {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.plant-click:hover {
+  text-decoration: underline;
+}
+
+/* ===== ANALYTICS MODAL (BIG) ===== */
+.analytics-modal {
+  width: 720px;          /* ⬅ шире */
+  max-width: 95vw;
+  padding: 36px 40px;    /* ⬅ больше воздуха */
+  border-radius: 22px;
+}
+.analytics-overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.analytics-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Заголовок */
+.analytics-modal h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+/* Контент */
+.analytics-placeholder {
+  margin: 24px 0;
+  padding: 22px 26px;
+  border-radius: 16px;
+
+  background: rgba(0, 0, 0, 0.05);
+
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Список */
+.analytics-placeholder ul {
+  margin-top: 12px;
+  padding-left: 22px;
+}
+
+.analytics-placeholder li {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+/* Кнопка */
+.analytics-modal .btn-secondary {
+  margin-top: 10px;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
 }

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import AppLayout from "../layouts/AppLayout";
 import "./dashboard.css";
+import SettingsModal from "../components/SettingsModal";
+
+import DevicesModal from "../components/DevicesModal";
 
 type Weather = {
   temp: number;
@@ -27,6 +30,9 @@ type Plant = {
 export default function Home() {
   const [weather, setWeather] = useState<Weather | null>(null);
   const [sensor, setSensor] = useState<Sensor | null>(null);
+const [showAnalytics, setShowAnalytics] = useState(false);
+const [showSettings, setShowSettings] = useState(false);
+const [devicesOpen, setDevicesOpen] = useState(false);
 
   // modal
   const [showConnect, setShowConnect] = useState(false);
@@ -41,10 +47,7 @@ export default function Home() {
   const [plantsError, setPlantsError] = useState<string | null>(null);
 
   const [selectedPlantId, setSelectedPlantId] = useState<number | "">("");
-  const selectedPlantName = useMemo(() => {
-    if (selectedPlantId === "") return "";
-    return plants.find(p => p.id === selectedPlantId)?.name ?? "";
-  }, [plants, selectedPlantId]);
+
 
   // user-based storage key
   const user = useMemo(() => {
@@ -133,12 +136,18 @@ export default function Home() {
     loadPlants();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showConnect]);
+const now = new Date();
 
-  const today = new Date().toLocaleDateString("sk-SK", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+const rawWeekday = now.toLocaleDateString("sk-SK", {
+  weekday: "long",
+});
+
+const weekday =
+  rawWeekday.charAt(0).toUpperCase() + rawWeekday.slice(1);
+
+const dateNumeric = `${String(now.getDate()).padStart(2, "0")}.${String(
+  now.getMonth() + 1
+).padStart(2, "0")}.${now.getFullYear()}`;
 
   const savedDevice = useMemo(() => {
     if (!storageKey) return null;
@@ -223,88 +232,120 @@ const handleResetDevice = () => {
 
   return (
     <AppLayout>
-      <div className="dashboard">
-        {/* 🔌 CENTER BUTTON */}
-        <div className="connect-device-center">
-          <button className="connect-btn" onClick={() => setShowConnect(true)}>
-            🔌 Pripojiť zariadenie
-          </button>
-        </div>
+<div>
 
-        {/* 🌤 WEATHER */}
-        <div className="weather-panel">
-          {weather && (
-            <>
-              <div className="weather-temp">{Math.round(weather.temp)}°</div>
-              <div className="weather-city">Košice</div>
-              <div className="weather-desc">{weather.description}</div>
-              <div className="weather-date">{today}</div>
 
-              <div className="weather-stats">
-                <div>💧 {weather.humidity}%</div>
-                <div>💨 {weather.wind} m/s</div>
-              </div>
 
-              <img
-                className="weather-icon"
-                src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-                alt="weather"
-              />
-            </>
-          )}
-        </div>
+<div className="weather-panel">
+  {weather && (
+    <>
+      <div className="weather-temp">{Math.round(weather.temp)}°</div>
+      <div className="weather-city">Košice</div>
+      <div className="weather-desc">{weather.description}</div>
+      <div className="weather-date">
+  <div>{weekday}</div>
+  <div>{dateNumeric}</div>
+</div>
+
+      <div className="weather-stats">
+        <div>💧 {weather.humidity}%</div>
+        <div>💨 {weather.wind} m/s</div>
+      </div>
+
+<img
+  className="weather-icon"
+  src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+  alt="weather"
+/>
+
+{/* ⬇️ СПЕЙСЕР */}
+<div className="weather-spacer" />
+
+<div className="weather-menu">
+  <button onClick={() => setDevicesOpen(true)}>
+  Устройства
+</button>
+
+  <button onClick={() => setShowSettings(true)}>
+  Настройки
+</button>
+
+</div>
+
+    </>
+  )}
+</div>
+
+
 
         {/* 📊 DASHBOARD */}
-        <div className="dashboard-main">
-          <div className="kpi-row">
-            {sensor && (
-              <>
-                <div className="kpi-card">
-                  🌡 Air temperature
-                  <strong>{sensor.air_temp} °C</strong>
-                </div>
+<div className="dashboard">
 
-                <div className="kpi-card">
-                  💧 Air humidity
-                  <strong>{sensor.air_hum} %</strong>
-                </div>
+  {/* KPI CARDS */}
+  {/* KPI CARDS */}
+<div className="kpi-row">
+  {sensor && (
+    <>
+      <div className="kpi-card">
+        <span className="kpi-label">🌡 Air temperature</span>
+        <strong>
+          {sensor.air_temp}
+          <span className="unit">°C</span>
+        </strong>
+      </div>
 
-                <div className="kpi-card">
-                  🌱 Soil
-                  <strong>{sensor.soil}</strong>
-                </div>
+      <div className="kpi-card">
+        <span className="kpi-label">💧 Air humidity</span>
+        <strong>
+          {sensor.air_hum}
+          <span className="unit">%</span>
+        </strong>
+      </div>
 
-                <div className="kpi-card">
-                  💡 Light
-                  <strong>{sensor.light.toFixed(1)} lx</strong>
-                </div>
+      <div className="kpi-card">
+        <span className="kpi-label">🌱 Soil</span>
+        <strong>
+          {sensor.soil}
+        </strong>
+      </div>
 
-                <div className="kpi-card">
-                  🚰 Water temp
-                  <strong>{sensor.water_temp.toFixed(1)} °C</strong>
-                </div>
+      <div className="kpi-card">
+        <span className="kpi-label">💡 Light</span>
+        <strong>
+          {sensor.light.toFixed(1)}
+          <span className="unit">lx</span>
+        </strong>
+      </div>
 
-                <div className="kpi-card">
-                  🕒 Last update
-                  <strong>{new Date(sensor.time).toLocaleTimeString()}</strong>
-                </div>
-              </>
-            )}
-            
-          </div>
+      <div className="kpi-card">
+        <span className="kpi-label">🚰 Water temperature</span>
+        <strong>
+          {sensor.water_temp.toFixed(1)}
+          <span className="unit">°C</span>
+        </strong>
+      </div>
 
-          <div className="charts">
-            <div className="chart">📈 Temperature trend</div>
-            <div className="chart">📊 Humidity trend</div>
-          </div>
+      <div className="kpi-card">
+        <span className="kpi-label">🕒 Last update</span>
+        <strong className="kpi-time">
+          {new Date(sensor.time).toLocaleTimeString()}
+        </strong>
+      </div>
+    </>
+  )}
+</div>
+ {/* 🔥 БЛОК ПОД KPI */}
+  <div className="device-actions">
 
-          {/* ✅ CONNECTED DEVICE INFO */}
-     {savedDevice && (
-  <div className="connected-device">
-    <div><strong>Pripojené zariadenie:</strong> {savedDevice.deviceName} ({savedDevice.deviceId})</div>
-    <div><strong>Kultúra:</strong> {savedDevice.plantName}</div>
+    {/* ➕ КНОПКА СНАЧАЛА */}
+
+    {/* 🟢 ПОТОМ ПАНЕЛЬ ПОДКЛЮЧЕННОГО УСТРОЙСТВА */}
+
+
   </div>
-)}
+
+
+
 
         </div>
 
@@ -372,62 +413,106 @@ const handleResetDevice = () => {
             </div>
           </div>
         )}
-        
+
       </div>
-      {/* ⬇️ ОБЯЗАТЕЛЬНО ВНИЗУ СТРАНИЦЫ */}
+      {/* 🔌 CONNECTED DEVICE CARD */}
 {savedDevice && (
-  <div
-    style={{
-      position: "fixed",
-      bottom: 20,
-      left: "50%",
-      transform: "translateX(-50%)",
-      background: "#0f2d2f",
-      color: "#fff",
-      padding: "14px 20px",
-      borderRadius: 12,
-      boxShadow: "0 8px 30px rgba(0,0,0,0.35)",
-      zIndex: 9999,
-      minWidth: 320,
-      textAlign: "left",
-    }}
-  >
-    <div><strong>✅ Устройство подключено</strong></div>
-    <div>📟 Название: {savedDevice.deviceName}</div>
-    <div>🆔 ID: {savedDevice.deviceId}</div>
-    <div>🌱 Культура: {savedDevice.plantName}</div>
-    {/* ⬇️ КНОПКИ-ЗАГЛУШКИ */}
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 8,
-        marginTop: 12,
-      }}
-    >
-      <button className="placeholder-btn">-------</button>
-      <button className="placeholder-btn">-------</button>
-      <button className="placeholder-btn">-------</button>
-      <button className="placeholder-btn">-------</button>
+  <div className="device-card">
+    <div className="device-card-header">
+     <span
+  className="device-title plant-click"
+  onClick={() => setShowAnalytics(true)}
+>
+  🌱 {savedDevice.deviceName}
+</span>
+
     </div>
 
-    <button
-      onClick={handleResetDevice}
-      style={{
-        marginTop: 10,
-        width: "100%",
-        padding: "6px 10px",
-        background: "#c0392b",
-        color: "#fff",
-        border: "none",
-        borderRadius: 6,
-        cursor: "pointer",
-      }}
-    >
-      🔄 Reset
-    </button>
+    <div className="device-grid">
+      <div className="device-metric">
+        <span>🌡 Temp</span>
+        <strong>{sensor?.air_temp ?? "--"} °C</strong>
+      </div>
+
+      <div className="device-metric">
+        <span>💧 Humidity</span>
+        <strong>{sensor?.air_hum ?? "--"} %</strong>
+      </div>
+
+      <div className="device-metric">
+        <span>🌱 Soil</span>
+        <strong>{sensor?.soil ?? "--"}</strong>
+      </div>
+
+      <div className="device-metric">
+        <span>💡 Light</span>
+        <strong>{sensor?.light?.toFixed(1) ?? "--"} lx</strong>
+      </div>
+    </div>
+
+<div className="device-footer">
+  <span>
+    Культура: <strong>{savedDevice?.plantName ?? "—"}</strong>
+  </span>
+
+
+
+  <button className="device-reset" onClick={handleResetDevice}>
+    🔄 Reset
+  </button>
+</div>
+<div style={{ color: "red", fontSize: 12 }}>
+  DEBUG savedDevice: {JSON.stringify(savedDevice)}
+</div>
+
+
   </div>
 )}
+{showAnalytics && (
+  <div className="modal-overlay" onClick={() => setShowAnalytics(false)}>
+    <div
+      className="modal analytics-modal"
+      onClick={e => e.stopPropagation()}
+    >
+      <h2>🌱 Аналитика культуры</h2>
+
+      {/* ПОКА ПУСТАЯ / ЗАГЛУШКА */}
+      <div className="analytics-placeholder">
+        <p>📊 Аналитика будет добавлена позже</p>
+        <p>Здесь появятся:</p>
+        <ul>
+          <li>Температурные графики</li>
+          <li>Влажность почвы</li>
+          <li>Освещённость</li>
+          <li>Рекомендации по уходу</li>
+        </ul>
+      </div>
+
+      <button
+        className="btn-secondary"
+        onClick={() => setShowAnalytics(false)}
+      >
+        Закрыть
+      </button>
+    </div>
+  </div>
+)}
+<SettingsModal
+  open={showSettings}
+  onClose={() => setShowSettings(false)}
+/>
+<DevicesModal
+  open={devicesOpen}
+  onClose={() => setDevicesOpen(false)}
+  device={savedDevice}   // 👈 то же устройство, что в device-card
+/>
+  <div
+    className="add-device-card"
+    onClick={() => setShowConnect(true)}
+  >
+    <div className="add-device-plus">+</div>
+    <div className="add-device-text">Pripojiť zariadenie</div>
+  </div>
 
     </AppLayout>
   );

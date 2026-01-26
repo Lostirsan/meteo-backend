@@ -1,4 +1,4 @@
-/* ===== PAGE ===== */
+/* ===== PAGE BACKGROUND ===== */
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -9,52 +9,64 @@
 
 /* ===== CARD ===== */
 .auth-card {
-  width: 360px;
+  width: 600px;                /* ⬅ было ~440 */
   background: #ffffff;
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  padding: 56px 52px;          /* ⬅ в 1.5 раза больше */
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 28px;
 }
 
+
+/* TITLE */
 .auth-card h2 {
   text-align: center;
-  margin-bottom: 6px;
+  font-size: 28px;     /* ⬅ было ~22 */
+  font-weight: 800;
+  margin-bottom: 14px;
 }
 
-/* ===== FORM (ВАЖНО) ===== */
+
+/* FORM */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* ===== INPUTS ===== */
 .auth-card input {
   width: 100%;
-  padding: 14px;
-  font-size: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  padding: 20px 22px;  /* ⬅ сильно больше */
+  font-size: 18px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
 }
 
-/* ✅ MAIN BUTTON — ЗЕЛЁНАЯ */
+
+
+.auth-card input:focus {
+  border-color: #22c55e;
+}
+
 .auth-btn {
-  margin-top: 8px;
-  padding: 12px;
-  font-size: 15px;
-  background: #2ecc71;          /* 🟢 ЗЕЛЁНАЯ */
+  margin-top: 14px;
+  padding: 20px;
+  font-size: 18px;
+  background: #22c55e;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+
+
 .auth-btn:hover {
-  background: #1e4fd8;
+  background: #16a34a;
 }
 
 .auth-btn:disabled {
@@ -62,23 +74,25 @@
   cursor: not-allowed;
 }
 
-/* ===== ERROR ===== */
+/* ERROR */
 .auth-error {
   color: #e74c3c;
   font-size: 13px;
   text-align: center;
 }
 
-/* ===== SWITCH ===== */
 .auth-switch {
   text-align: center;
-  font-size: 13px;
+  font-size: 18px;      /* ⬅ БОЛЬШЕ */
+  margin-top: 20px;
+  color: #374151;
 }
 
 .auth-link {
+  font-size: 18px;      /* ⬅ БОЛЬШЕ */
   color: #2563eb;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .auth-link:hover {

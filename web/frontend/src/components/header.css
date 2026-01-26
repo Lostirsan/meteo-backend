@@ -1,71 +1,101 @@
+/* ===== HEADER ===== */
 .header {
-  height: 60px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
+  height: 64px;
+  width: 100%;
+
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  color: white;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 0 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
 }
 
-.logo {
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.user-box {
+/* ===== LEFT ===== */
+.header-left {
+  font-weight: 800;
+  font-size: 22px;      /* ⬅ заметно больше */
+  letter-spacing: 0.4px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+/* ===== RIGHT ===== */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .user-name {
   font-size: 14px;
-  color: #1f2937;
 }
 
-.logout-glass {
+/* ===== LOGOUT ===== */
+.logout-btn {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+
+  border: 1px solid var(--border-color);
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
 
-  color: #000000;                 /* ← чёрный цвет */
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
 
-  text-decoration: underline;     /* ← ВСЕГДА подчёркнут */
-  text-underline-offset: 3px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.12);
-
-  transition: all 0.25s ease;
+/* hover — светлая тема */
+.logout-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 
-.logout-glass:hover {
-  background: rgba(255, 255, 255, 0.45);
-  transform: translateY(-1px);
-}
-
-.logout-glass:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-.header-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.icon-btn {
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
   background: transparent;
   border: none;
-  font-size: 20px;
   cursor: pointer;
+
+  font-size: 18px;
+  padding: 6px;
+  border-radius: 8px;
+
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.1);
+}
+
+/* ========================= */
+/* 🌙 DARK MODE STYLES */
+/* ========================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark .header {
+  background: linear-gradient(90deg, #064e3b, #022c22);
+}
+
+body.dark .logout-btn {
+  background: rgba(255,255,255,0.15);
+}
+
+body.dark .logout-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+body.dark .theme-toggle:hover {
+  background: rgba(255,255,255,0.1);
 }
