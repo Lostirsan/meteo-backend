@@ -22,6 +22,9 @@ export default function AuthCard({ mode = "login" }: Props) {
 
   const api = "http://localhost:3001/api";
 
+  // логика БЕЗ ИЗМЕНЕНИЙ ⬇
+  // doLogin, handleSubmit — оставляем как у тебя
+
   const doLogin = async (u: string, p: string) => {
     const res = await fetch(`${api}/login`, {
       method: "POST",
@@ -36,6 +39,7 @@ export default function AuthCard({ mode = "login" }: Props) {
     }
 
     setUser(data.user);
+localStorage.setItem("user", JSON.stringify(data.user));
     navigate("/dashboard");
   };
 
@@ -88,7 +92,7 @@ export default function AuthCard({ mode = "login" }: Props) {
 
   return (
     <div className="auth-card">
-      <h2>{isRegister ? "Create Account" : "Login"}</h2>
+      <h2>{isRegister ? "Register" : "Login"}</h2>
 
       <form onSubmit={handleSubmit} className="auth-form">
         <input
@@ -103,7 +107,7 @@ export default function AuthCard({ mode = "login" }: Props) {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          autoComplete={isRegister ? "new-password" : "current-password"}
+          autoComplete="current-password"
         />
 
         {isRegister && (
@@ -112,7 +116,6 @@ export default function AuthCard({ mode = "login" }: Props) {
             type="password"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
-            autoComplete="new-password"
           />
         )}
 
@@ -123,23 +126,30 @@ export default function AuthCard({ mode = "login" }: Props) {
         </button>
       </form>
 
-      <div className="auth-switch">
-        {isRegister ? (
-          <>
-            Already have an account?{" "}
-            <span className="auth-link" onClick={() => navigate("/login")}>
-              Login
-            </span>
-          </>
-        ) : (
-          <>
-            No account?{" "}
-            <span className="auth-link" onClick={() => navigate("/register")}>
-              Register
-            </span>
-          </>
-        )}
-      </div>
+   <div className="auth-switch">
+  {isRegister ? (
+    <>
+      Already have an account?{" "}
+      <span
+        className="auth-link"
+        onClick={() => navigate("/login")}
+      >
+        Login
+      </span>
+    </>
+  ) : (
+    <>
+      No account?{" "}
+      <span
+        className="auth-link"
+        onClick={() => navigate("/register")}
+      >
+        Register
+      </span>
+    </>
+  )}
+</div>
+
     </div>
   );
 }

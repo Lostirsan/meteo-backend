@@ -1,0 +1,97 @@
+/* ===== OVERLAY ===== */
+.devices-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.devices-overlay.show {
+  opacity: 1;
+}
+
+.devices-overlay.hide {
+  opacity: 0;
+}
+
+.devices-modal {
+  background: #ffffff;
+  border-radius: 24px;
+
+  width: 760px;          /* ⬅️ ширина */
+  height: 420px;         /* ⬅️ ВЕРТИКАЛЬНО растянули */
+  max-width: 92vw;
+  max-height: 85vh;
+
+  padding: 48px 56px;    /* ⬅️ больше воздуха */
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  transform: scale(0.9) translateY(30px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+
+.devices-modal.show {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.devices-modal.hide {
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+}
+
+.devices-modal h2 {
+  font-size: 30px;       /* ⬅️ БОЛЬШЕ */
+  font-weight: 800;
+  margin-bottom: 32px;
+}
+
+
+/* ===== CONTENT ===== */
+.device-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  gap: 24px;
+}
+
+.device-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+}
+
+.device-row span {
+  font-size: 17px;
+  opacity: 0.8;
+}
+
+.device-empty {
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+/* ===== CLOSE BUTTON ===== */
+.devices-close {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
+  cursor: pointer;
+  font-weight: 600;
+}

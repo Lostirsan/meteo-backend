@@ -1,6 +1,4 @@
-import { useState } from "react";
-import Header from "../components/Header.tsx";
-import Sidebar from "../components/Sidebar.tsx";
+import Header from "../components/Header";
 import "./appLayout.css";
 
 type Props = {
@@ -9,18 +7,14 @@ type Props = {
 };
 
 export default function AppLayout({ children, title }: Props) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <div className="app-layout">
-      <Header onMenuClick={() => setSidebarOpen(true)} />
+      <Header />
 
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <div className="app-main">
+      <main className="app-main">
         {title && <h1 className="page-title">{title}</h1>}
         {children}
-      </div>
+      </main>
     </div>
   );
 }

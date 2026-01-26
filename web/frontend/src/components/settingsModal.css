@@ -1,0 +1,106 @@
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.settings-overlay.show {
+  opacity: 1;
+}
+
+.settings-overlay.hide {
+  opacity: 0;
+}
+
+/* модалка */
+.settings-modal {
+  width: 460px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px;
+
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+
+  transition: all 0.3s ease;
+}
+
+.settings-modal.show {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.settings-modal.hide {
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+}
+
+/* SETTINGS ROW */
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.setting-row input[type="range"] {
+  flex: 1;
+}
+
+/* NOTIFICATIONS */
+.setting-row.notifications {
+  justify-content: space-between;
+}
+
+.setting-label {
+  font-weight: 600;
+}
+
+/* TOGGLE */
+.switch {
+  width: 54px;
+  height: 30px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s ease;
+}
+
+.switch.on {
+  background: #22c55e;
+}
+
+.knob {
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.25s ease;
+}
+
+.switch.on .knob {
+  transform: translateX(24px);
+}
+
+/* CLOSE */
+.settings-close {
+  margin-top: 18px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e7eb;
+  cursor: pointer;
+  font-weight: 600;
+}

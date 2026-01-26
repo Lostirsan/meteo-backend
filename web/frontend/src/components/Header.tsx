@@ -1,51 +1,56 @@
-import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "../context/UserContext.tsx";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { useEffect, useState } from "react";
 import "./header.css";
 
-export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
+export default function Header() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const handleLogout = () => {
-    setUser(null);
-    navigate("/register");
+  // 🌙 состояние темы
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    return (localStorage.getItem("theme") as "light" | "dark") || "light";
+  });
+
+  // применяем тему к body
+  useEffect(() => {
+    document.body.classList.remove("light", "dark");
+    document.body.classList.add(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
   };
 
-  const getTitle = () => {
-  switch (location.pathname) {
-    case "/dashboard":
-      return "🏠 Home";
-    case "/programs":
-      return "Application settings";
-    case "/actions":
-      return "🚿 Actions";
-    case "/reports":
-      return "📊 Reports";
-    case "/help":
-      return "❓ Help & Support";
-    default:
-      return "";
-  }
+const logout = () => {
+  setUser(null);
+  localStorage.removeItem("user");
+  navigate("/login");
 };
 
 
   return (
     <header className="header">
-      {/* LEFT */}
-      <button className="icon-btn" onClick={onMenuClick}>
-        ☰
-      </button>
+      <div className="header-left">
+        🌱 Mini Agrárny Assistant
+      </div>
 
-      {/* CENTER */}
-      <span className="header-title">{getTitle()}</span>
-
-      {/* RIGHT */}
       {user && (
-        <div className="user-box">
+        <div className="header-right">
           <span className="user-name">👤 {user.username}</span>
-          <button className="logout-glass" onClick={handleLogout}>
-            Odhlásiť sa
+
+          {/* 🌙 / ☀️ ПЕРЕКЛЮЧЕНИЕ ТЕМЫ */}
+          <button
+            className="theme-toggle"
+            title="Toggle theme"
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+
+          <button className="logout-btn" onClick={logout}>
+            Выйти
           </button>
         </div>
       )}

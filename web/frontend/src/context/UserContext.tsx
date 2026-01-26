@@ -1,37 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 type User = {
   id: number;
   username: string;
 };
 
-type Ctx = {
+type UserContextType = {
   user: User | null;
-  setUser: (u: User | null) => void;
+  setUser: (user: User | null) => void;
   logout: () => void;
 };
 
-const UserContext = createContext<Ctx | null>(null);
+const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUserState] = useState<User | null>(null);
-
-  useEffect(() => {
+  // ✅ ЛЕНИВАЯ ИНИЦИАЛИЗАЦИЯ (важно!)
+  const [user, setUserState] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("user");
-      if (saved) setUserState(JSON.parse(saved));
+      return saved ? JSON.parse(saved) : null;
     } catch {
-      setUserState(null);
+      return null;
     }
-  }, []);
+  });
 
+  // ✅ единая функция установки пользователя
   const setUser = (u: User | null) => {
     setUserState(u);
-    if (u) localStorage.setItem("user", JSON.stringify(u));
-    else localStorage.removeItem("user");
+
+    if (u) {
+      localStorage.setItem("user", JSON.stringify(u));
+    } else {
+      localStorage.removeItem("user");
+    }
   };
 
-  const logout = () => setUser(null);
+  // ✅ logout
+  const logout = () => {
+    setUser(null);
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
@@ -42,6 +49,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
 export function useUser() {
   const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUser must be used inside UserProvider");
+  if (!ctx) {
+    throw new Error("useUser must be used inside UserProvider");
+  }
   return ctx;
 }
