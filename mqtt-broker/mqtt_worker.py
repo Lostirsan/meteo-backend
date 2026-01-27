@@ -1,28 +1,39 @@
 import psycopg2
 import json
 import time
+import os
 import paho.mqtt.client as mqtt
 from datetime import datetime
-import os
 
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = int(os.getenv("DB_PORT"))
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
+MQTT_HOST = os.getenv("MQTT_HOST", "test.mosquitto.org")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 MQTT_TOPIC = os.getenv("MQTT_TOPIC", "greenhouse/#")
 
 def get_conn():
-    return psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
-    )
+    return psycopg2.connect(DATABASE_URL)
+
+def init_db():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS measurements (
+            id SERIAL PRIMARY KEY,
+            device_id TEXT,
+            time TIMESTAMP NOT NULL,
+            air_temp REAL,
+            air_hum REAL,
+            air_press REAL,
+            gas REAL,
+            water_temp REAL,
+            soil REAL,
+            light REAL
+        );
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def save_measurement(payload):
     conn = get_conn()
@@ -50,10 +61,12 @@ def on_message(client, userdata, msg):
     try:
         payload = json.loads(msg.payload.decode())
         save_measurement(payload)
+        print("Saved:", payload)
     except Exception as e:
         print("ERROR:", e)
 
 def run():
+    init_db()
     client = mqtt.Client()
     client.on_message = on_message
     client.connect(MQTT_HOST, MQTT_PORT)
