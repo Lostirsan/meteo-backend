@@ -17,30 +17,26 @@ def get_conn():
     return psycopg2.connect(DATABASE_URL)
 
 def init_db():
-    try:
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS measurements (
-                id SERIAL PRIMARY KEY,
-                device_id TEXT,
-                time TIMESTAMP NOT NULL,
-                air_temp REAL,
-                air_hum REAL,
-                air_press REAL,
-                gas REAL,
-                water_temp REAL,
-                soil REAL,
-                light REAL
-            );
-        """)
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("Database initialized successfully")
-    except Exception as e:
-        print("DB INIT ERROR:", e)
-        raise
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS measurements (
+            id SERIAL PRIMARY KEY,
+            device_id TEXT,
+            time TIMESTAMP NOT NULL,
+            air_temp REAL,
+            air_hum REAL,
+            air_press REAL,
+            gas REAL,
+            water_temp REAL,
+            soil REAL,
+            light REAL
+        );
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+    print("Database initialized successfully")
 
 def save_measurement(payload):
     try:
@@ -68,7 +64,20 @@ def save_measurement(payload):
     except Exception as e:
         print("SAVE ERROR:", e)
 
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("MQTT connected successfully")
+        client.subscribe(MQTT_TOPIC)
+        print("Subscribed to:", MQTT_TOPIC)
+    else:
+        print("MQTT connection failed, code:", rc)
+
+def on_disconnect(client, userdata, rc):
+    print("MQTT disconnected with code:", rc)
+
 def on_message(client, userdata, msg):
+    print("RAW MESSAGE:", msg.topic, msg.payload)
+
     try:
         raw = msg.payload.decode().strip()
         if not raw:
@@ -97,19 +106,22 @@ def run():
     print("Connecting to DB...")
     init_db()
 
-    print("Connecting to MQTT:", MQTT_HOST, MQTT_PORT, "Topic:", MQTT_TOPIC)
-    client = mqtt.Client(protocol=mqtt.MQTTv311)
-    client.on_message = on_message
+    while True:
+        try:
+            print("Connecting to MQTT:", MQTT_HOST, MQTT_PORT, "Topic:", MQTT_TOPIC)
 
-    try:
-        client.connect(MQTT_HOST, MQTT_PORT, 60)
-        client.subscribe(MQTT_TOPIC)
-        print("Connected to MQTT, waiting for messages...")
-        client.loop_forever()
-    except Exception as e:
-        print("MQTT CONNECTION ERROR:", e)
-        time.sleep(5)
-        run()
+            client = mqtt.Client(protocol=mqtt.MQTTv311)
+            client.on_connect = on_connect
+            client.on_disconnect = on_disconnect
+            client.on_message = on_message
+
+            client.connect(MQTT_HOST, MQTT_PORT, 60)
+            client.loop_forever()
+
+        except Exception as e:
+            print("MQTT ERROR:", e)
+            print("Reconnecting in 5 seconds...")
+            time.sleep(5)
 
 if __name__ == "__main__":
     run()
