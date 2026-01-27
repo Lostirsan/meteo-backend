@@ -81,7 +81,7 @@ def run():
     init_db()
 
     print("Connecting to MQTT:", MQTT_HOST, MQTT_PORT, "Topic:", MQTT_TOPIC)
-    client = mqtt.Client()
+    client = mqtt.Client(protocol=mqtt.MQTTv311)
     client.on_message = on_message
 
     try:
