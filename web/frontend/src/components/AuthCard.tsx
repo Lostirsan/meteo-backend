@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext.tsx";
-import "./auth.css"; // НЕ УДАЛЯЙ, файл должен существовать
+import "./auth.css";
 
 type Props = {
   mode?: "login" | "register";
@@ -20,16 +20,17 @@ export default function AuthCard({ mode = "login" }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const api = "http://localhost:3001/api";
+  const api = import.meta.env.VITE_API_URL;
 
-  // логика БЕЗ ИЗМЕНЕНИЙ ⬇
-  // doLogin, handleSubmit — оставляем как у тебя
+  if (!api) {
+    throw new Error("VITE_API_URL is not defined");
+  }
 
   const doLogin = async (u: string, p: string) => {
     const res = await fetch(`${api}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: u, password: p }),
+      body: JSON.stringify({ username: u, password: p })
     });
 
     const data = await res.json().catch(() => ({}));
@@ -39,7 +40,7 @@ export default function AuthCard({ mode = "login" }: Props) {
     }
 
     setUser(data.user);
-localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("user", JSON.stringify(data.user));
     navigate("/dashboard");
   };
 
@@ -66,22 +67,19 @@ localStorage.setItem("user", JSON.stringify(data.user));
         const res = await fetch(`${api}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: u, password: p }),
+          body: JSON.stringify({ username: u, password: p })
         });
 
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          // твой backend шлёт 409 "User already exists"
           throw new Error(data?.message || "Register failed");
         }
 
-        // ✅ сразу логиним
         await doLogin(u, p);
         return;
       }
 
-      // login
       await doLogin(u, p);
     } catch (err: any) {
       setError(err?.message || "Error");
@@ -126,30 +124,23 @@ localStorage.setItem("user", JSON.stringify(data.user));
         </button>
       </form>
 
-   <div className="auth-switch">
-  {isRegister ? (
-    <>
-      Already have an account?{" "}
-      <span
-        className="auth-link"
-        onClick={() => navigate("/login")}
-      >
-        Login
-      </span>
-    </>
-  ) : (
-    <>
-      No account?{" "}
-      <span
-        className="auth-link"
-        onClick={() => navigate("/register")}
-      >
-        Register
-      </span>
-    </>
-  )}
-</div>
-
+      <div className="auth-switch">
+        {isRegister ? (
+          <>
+            Already have an account?{" "}
+            <span className="auth-link" onClick={() => navigate("/login")}>
+              Login
+            </span>
+          </>
+        ) : (
+          <>
+            No account?{" "}
+            <span className="auth-link" onClick={() => navigate("/register")}>
+              Register
+            </span>
+          </>
+        )}
+      </div>
     </div>
   );
 }
