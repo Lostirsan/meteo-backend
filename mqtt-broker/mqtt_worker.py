@@ -7,9 +7,9 @@ from datetime import datetime
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-MQTT_HOST = os.getenv("MQTT_HOST", "test.mosquitto.org")
+MQTT_HOST = os.getenv("MQTT_HOST", "broker.hivemq.com")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
-MQTT_TOPIC = os.getenv("MQTT_TOPIC", "greenhouse/#")
+MQTT_TOPIC = os.getenv("MQTT_TOPIC", "greenhouse/greenhouse_1")
 
 def get_conn():
     if not DATABASE_URL:
@@ -70,8 +70,25 @@ def save_measurement(payload):
 
 def on_message(client, userdata, msg):
     try:
-        payload = json.loads(msg.payload.decode())
+        raw = msg.payload.decode().strip()
+        if not raw:
+            print("EMPTY MESSAGE, SKIP")
+            return
+
+        payload = json.loads(raw)
+
+        if not isinstance(payload, dict):
+            print("INVALID PAYLOAD TYPE:", type(payload))
+            return
+
+        if "device_id" not in payload:
+            print("NO device_id, SKIP:", payload)
+            return
+
         save_measurement(payload)
+
+    except json.JSONDecodeError as e:
+        print("JSON ERROR:", e)
     except Exception as e:
         print("MESSAGE ERROR:", e)
 
