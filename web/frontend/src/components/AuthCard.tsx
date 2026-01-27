@@ -1,92 +1,97 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext.tsx";
-import "./auth.css";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useUser } from "../context/UserContext.tsx"
+import "./auth.css"
 
 type Props = {
-  mode?: "login" | "register";
-};
+  mode?: "login" | "register"
+}
 
 export default function AuthCard({ mode = "login" }: Props) {
-  const navigate = useNavigate();
-  const { setUser } = useUser();
+  const navigate = useNavigate()
+  const { setUser } = useUser()
 
-  const isRegister = mode === "register";
+  const isRegister = mode === "register"
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const api = import.meta.env.VITE_API_URL;
-
-  if (!api) {
-    throw new Error("VITE_API_URL is not defined");
-  }
+  const api = import.meta.env.VITE_API_URL
 
   const doLogin = async (u: string, p: string) => {
+    if (!api) {
+      setError("API is not configured")
+      return
+    }
+
     const res = await fetch(`${api}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: u, password: p }),
-    });
+      body: JSON.stringify({ username: u, password: p })
+    })
 
-    const data = await res.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}))
 
     if (!res.ok || !data?.success || !data?.user) {
-      throw new Error(data?.message || "Invalid credentials");
+      throw new Error(data?.detail || data?.message || "Invalid credentials")
     }
 
-    setUser(data.user);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    navigate("/dashboard");
-  };
+    setUser(data.user)
+    localStorage.setItem("user", JSON.stringify(data.user))
+    navigate("/dashboard")
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
-    const u = username.trim();
-    const p = password;
+    if (!api) {
+      setError("API is not configured")
+      return
+    }
+
+    const u = username.trim()
+    const p = password
 
     if (!u || !p) {
-      setError("Fill username & password");
-      return;
+      setError("Fill username & password")
+      return
     }
 
     if (isRegister && p !== confirm) {
-      setError("Passwords do not match");
-      return;
+      setError("Passwords do not match")
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
       if (isRegister) {
         const res = await fetch(`${api}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: u, password: p }),
-        });
+          body: JSON.stringify({ username: u, password: p })
+        })
 
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({}))
 
         if (!res.ok) {
-          throw new Error(data?.message || "Register failed");
+          throw new Error(data?.detail || data?.message || "Register failed")
         }
 
-        await doLogin(u, p);
-        return;
+        await doLogin(u, p)
+        return
       }
 
-      await doLogin(u, p);
+      await doLogin(u, p)
     } catch (err: any) {
-      setError(err?.message || "Error");
+      setError(err?.message || "Error")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="auth-card">
@@ -97,7 +102,6 @@ export default function AuthCard({ mode = "login" }: Props) {
           placeholder="Username"
           value={username}
           onChange={e => setUsername(e.target.value)}
-          autoComplete="username"
         />
 
         <input
@@ -105,7 +109,6 @@ export default function AuthCard({ mode = "login" }: Props) {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          autoComplete="current-password"
         />
 
         {isRegister && (
@@ -142,5 +145,5 @@ export default function AuthCard({ mode = "login" }: Props) {
         )}
       </div>
     </div>
-  );
+  )
 }
