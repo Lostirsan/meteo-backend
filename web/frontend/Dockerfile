@@ -2,10 +2,14 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY . .
-
+COPY package*.json ./
 RUN npm install
 
-CMD ["npm", "run", "dev", "--", "--host"]
+COPY . .
+RUN npm run build
+
+RUN npm install -g serve
+
+CMD ["sh", "-c", "serve -s dist -l $PORT"]
 
 EXPOSE 5173
