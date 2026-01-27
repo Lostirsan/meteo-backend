@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppLayout from "../layouts/AppLayout";
 import "./dashboard.css";
 import SettingsModal from "../components/SettingsModal";
-
+import WeeklyChart from "../components/WeeklyChart";
 import DevicesModal from "../components/DevicesModal";
 
 type Weather = {
@@ -20,62 +20,111 @@ type Sensor = {
   water_temp: number;
   soil: number;
   light: number;
+
+  air_press?: number; // 🌬 давление
+  gas?: number;       // 🧪 качество воздуха
 };
+
 
 type Plant = {
   id: number;
   name: string;
+
+  air_temp_min: number;
+  air_temp_max: number;
+
+  air_hum_min: number;
+  air_hum_max: number;
+
+  water_temp_min: number;
+  water_temp_max: number;
+
+  soil_min: number;
+  soil_max: number;
+
+  light_min: number;
+  light_max: number;
 };
 
+
 export default function Home() {
+
+
   const [weather, setWeather] = useState<Weather | null>(null);
   const [sensor, setSensor] = useState<Sensor | null>(null);
 const [showAnalytics, setShowAnalytics] = useState(false);
 const [showSettings, setShowSettings] = useState(false);
 const [devicesOpen, setDevicesOpen] = useState(false);
+const [activeKpi, setActiveKpi] = useState<
+  | "air_temp"
+  | "air_hum"
+  | "soil"
+  | "light"
+  | "water_temp"
+  | "air_press"
+  | "gas"
+  | null
+>(null);
 
   // modal
   const [showConnect, setShowConnect] = useState(false);
+
 
   // device fields
   const [deviceName, setDeviceName] = useState("");
   const [deviceId, setDeviceId] = useState("");
 
   // plants
-  const [plants, setPlants] = useState<Plant[]>([]);
-  const [plantsLoading, setPlantsLoading] = useState(false);
-  const [plantsError, setPlantsError] = useState<string | null>(null);
+// plants
+const [plants, setPlants] = useState<Plant[]>([]);
+const [plantsLoading, setPlantsLoading] = useState(false);
+const [plantsError, setPlantsError] = useState<string | null>(null);
+const [selectedPlantId, setSelectedPlantId] = useState<number | "">("");
 
-  const [selectedPlantId, setSelectedPlantId] = useState<number | "">("");
+// ✅ ПОСЛЕ этого
+const selectedPlant = useMemo(() => {
+  return plants.find(p => p.id === selectedPlantId) || null;
+}, [plants, selectedPlantId]);
 
 
-  // user-based storage key
-  const user = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "{}");
-    } catch {
-      return {};
-    }
-  }, []);
+const user = useMemo(() => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}");
+  } catch {
+    return {};
+  }
+}, []);
 
-  const storageKey = user?.username ? `device_${user.username}` : null;
+const storageKey = user?.username ? `device_${user.username}` : null;
 
-  // restore saved device for user
-  useEffect(() => {
-    if (!storageKey) return;
+// ================= SAVED DEVICE (REACTIVE) =================
+const [savedDevice, setSavedDevice] = useState<any>(null);
 
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return;
+// ================= RESTORE SAVED DEVICE =================
+useEffect(() => {
+  if (!storageKey) {
+    setSavedDevice(null);
+    return;
+  }
 
-    try {
-      const parsed = JSON.parse(saved);
-      setDeviceId(parsed.deviceId || "");
-      setDeviceName(parsed.deviceName || "");
-      setSelectedPlantId(parsed.plantId ?? "");
-    } catch {
-      // ignore
-    }
-  }, [storageKey]);
+  const saved = localStorage.getItem(storageKey);
+  if (!saved) {
+    setSavedDevice(null);
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    setSavedDevice(parsed);
+    setDeviceId(parsed.deviceId || "");
+    setDeviceName(parsed.deviceName || "");
+    setSelectedPlantId(parsed.plantId ?? "");
+  } catch {
+    setSavedDevice(null);
+  }
+}, [storageKey]);
+
 
   // weather + sensors loop
   useEffect(() => {
@@ -149,16 +198,7 @@ const dateNumeric = `${String(now.getDate()).padStart(2, "0")}.${String(
   now.getMonth() + 1
 ).padStart(2, "0")}.${now.getFullYear()}`;
 
-  const savedDevice = useMemo(() => {
-    if (!storageKey) return null;
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return null;
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
-    }
-  }, [storageKey, deviceId, deviceName, selectedPlantId]);
+
 
 const handleSave = () => {
   if (!storageKey) {
@@ -192,148 +232,198 @@ const handleSave = () => {
   };
 
   localStorage.setItem(storageKey, JSON.stringify(data));
-
+  setSavedDevice(data);   // 🔥 ВОТ ЭТО ГЛАВНОЕ
   setShowConnect(false);
+
+
 };
 
 const handleResetDevice = () => {
   if (!storageKey) return;
 
   localStorage.removeItem(storageKey);
-
+  setSavedDevice(null);
   setDeviceName("");
   setDeviceId("");
   setSelectedPlantId("");
 };
 
-{savedDevice && (
-  <div className="connected-device">
-    <p><strong>✅ Устройство подключено</strong></p>
-    <p>📟 Название: {savedDevice.deviceName}</p>
-    <p>🆔 ID: {savedDevice.deviceId}</p>
-    <p>🌱 Культура: {savedDevice.plantName}</p>
 
-    <button
-      style={{
-        marginTop: 10,
-        padding: "6px 12px",
-        background: "#c0392b",
-        color: "#fff",
-        border: "none",
-        borderRadius: 6,
-        cursor: "pointer"
-      }}
-      onClick={handleResetDevice}
-    >
-      🔄 Reset
-    </button>
-  </div>
-)}
 
   return (
-    <AppLayout>
-<div>
+   <AppLayout>
+  <div className="dashboard-layout">
 
+    {/* LEFT SIDEBAR */}
+    <div className="weather-panel">
+      {weather && (
+        <>
+          <div className="weather-temp">{Math.round(weather.temp)}°</div>
+          <div className="weather-city">Košice</div>
+          <div className="weather-desc">{weather.description}</div>
 
+          <div className="weather-date">
+            <div>{weekday}</div>
+            <div>{dateNumeric}</div>
+          </div>
 
-<div className="weather-panel">
-  {weather && (
-    <>
-      <div className="weather-temp">{Math.round(weather.temp)}°</div>
-      <div className="weather-city">Košice</div>
-      <div className="weather-desc">{weather.description}</div>
-      <div className="weather-date">
-  <div>{weekday}</div>
-  <div>{dateNumeric}</div>
-</div>
+          <div className="weather-stats">
+            <div>💧 {weather.humidity}%</div>
+            <div>💨 {weather.wind} m/s</div>
+          </div>
 
-      <div className="weather-stats">
-        <div>💧 {weather.humidity}%</div>
-        <div>💨 {weather.wind} m/s</div>
-      </div>
+          <img
+            className="weather-icon"
+            src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+            alt="weather"
+          />
 
-<img
-  className="weather-icon"
-  src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-  alt="weather"
-/>
+          <div className="weather-spacer" />
 
-{/* ⬇️ СПЕЙСЕР */}
-<div className="weather-spacer" />
-
-<div className="weather-menu">
-  <button onClick={() => setDevicesOpen(true)}>
-  Устройства
-</button>
-
-  <button onClick={() => setShowSettings(true)}>
-  Настройки
-</button>
-
-</div>
-
-    </>
-  )}
-</div>
-
+          <div className="weather-menu">
+            <button onClick={() => setDevicesOpen(true)}>Zariadenia</button>
+            <button onClick={() => setShowSettings(true)}>Nastavenia</button>
+          </div>
+        </>
+      )}
+    </div>
 
 
         {/* 📊 DASHBOARD */}
 <div className="dashboard">
 
-  {/* KPI CARDS */}
-  {/* KPI CARDS */}
+
 <div className="kpi-row">
   {sensor && (
     <>
-      <div className="kpi-card">
-        <span className="kpi-label">🌡 Air temperature</span>
-        <strong>
-          {sensor.air_temp}
-          <span className="unit">°C</span>
-        </strong>
+      {/* CURRENT */}
+      <div className="kpi-card" onClick={() => setActiveKpi("air_temp")}>
+        <span>🌡 Air temperature</span>
+        <strong>{sensor.air_temp} °C</strong>
+      </div>
+{/* 🚰 Water temperature */}
+<div className="kpi-card" onClick={() => setActiveKpi("water_temp")}>
+  <span>🚰 Water temperature</span>
+  <strong>{sensor.water_temp ?? "--"} °C</strong>
+</div>
+
+{/* 🌬 Air pressure */}
+<div className="kpi-card" onClick={() => setActiveKpi("air_press")}>
+  <span>🌬 Air pressure</span>
+  <strong>{sensor.air_press ?? "--"} hPa</strong>
+</div>
+
+{/* 🧪 Gas / Air quality */}
+<div className="kpi-card" onClick={() => setActiveKpi("gas")}>
+  <span>🧪 Gas</span>
+  <strong>{sensor.gas ?? "--"}</strong>
+</div>
+
+      <div className="kpi-card" onClick={() => setActiveKpi("air_hum")}>
+        <span>💧 Air humidity</span>
+        <strong>{sensor.air_hum} %</strong>
       </div>
 
-      <div className="kpi-card">
-        <span className="kpi-label">💧 Air humidity</span>
-        <strong>
-          {sensor.air_hum}
-          <span className="unit">%</span>
-        </strong>
+      <div className="kpi-card" onClick={() => setActiveKpi("soil")}>
+        <span>🌱 Soil</span>
+        <strong>{sensor.soil}</strong>
       </div>
 
-      <div className="kpi-card">
-        <span className="kpi-label">🌱 Soil</span>
-        <strong>
-          {sensor.soil}
-        </strong>
+      <div className="kpi-card" onClick={() => setActiveKpi("light")}>
+        <span>💡 Light</span>
+        <strong>{sensor.light} lx</strong>
       </div>
 
-      <div className="kpi-card">
-        <span className="kpi-label">💡 Light</span>
-        <strong>
-          {sensor.light.toFixed(1)}
-          <span className="unit">lx</span>
-        </strong>
-      </div>
+      {/* NORMS */}
+      {selectedPlant && (
+        <>
+          <div className="kpi-card">
+            <span>🌡 Temp norm</span>
+            <strong>
+              {selectedPlant.air_temp_min}–{selectedPlant.air_temp_max} °C
+            </strong>
+          </div>
+    {/* 🚰 Water temp norm */}
+    <div className="kpi-card" onClick={() => setActiveKpi("water_temp")}>
+      <span>🚰 Water temp norm</span>
+      <strong>
+        {selectedPlant.water_temp_min}–{selectedPlant.water_temp_max} °C
+      </strong>
+    </div>
 
-      <div className="kpi-card">
-        <span className="kpi-label">🚰 Water temperature</span>
-        <strong>
-          {sensor.water_temp.toFixed(1)}
-          <span className="unit">°C</span>
-        </strong>
-      </div>
+    {/* 🌬 Air pressure norm */}
+    <div className="kpi-card" onClick={() => setActiveKpi("air_press")}>
+      <span>🌬 Air pressure norm</span>
+      <strong>
+        {selectedPlant.air_press_min}–{selectedPlant.air_press_max} hPa
+      </strong>
+    </div>
 
-      <div className="kpi-card">
-        <span className="kpi-label">🕒 Last update</span>
-        <strong className="kpi-time">
-          {new Date(sensor.time).toLocaleTimeString()}
-        </strong>
-      </div>
+    {/* 🧪 Gas norm */}
+    <div className="kpi-card" onClick={() => setActiveKpi("gas")}>
+      <span>🧪 Gas norm</span>
+      <strong>
+        {selectedPlant.gas_min}–{selectedPlant.gas_max}
+      </strong>
+    </div>
+          <div className="kpi-card">
+            <span>💧 Humidity norm</span>
+            <strong>
+              {selectedPlant.air_hum_min}–{selectedPlant.air_hum_max} %
+            </strong>
+          </div>
+
+          <div className="kpi-card">
+            <span>🌱 Soil norm</span>
+            <strong>
+              {selectedPlant.soil_min}–{selectedPlant.soil_max}
+            </strong>
+          </div>
+
+          <div className="kpi-card">
+            <span>💡 Light norm</span>
+            <strong>
+              {selectedPlant.light_min}–{selectedPlant.light_max} lx
+            </strong>
+          </div>
+        </>
+      )}
     </>
   )}
 </div>
+
+
+{activeKpi && (
+  <div className="modal-overlay" onClick={() => setActiveKpi(null)}>
+    <div
+      className="modal analytics-modal"
+      onClick={e => e.stopPropagation()}
+    >
+      <h2>📊 Detaily ukazovateľa</h2>
+
+
+<WeeklyChart
+  title={`Týždenný prehľad ${activeKpi} — ${savedDevice?.plantName}`}
+  unit={
+    activeKpi === "air_temp" || activeKpi === "water_temp"
+      ? "°C"
+      : activeKpi === "air_press"
+      ? "hPa"
+      : activeKpi === "light"
+      ? "lx"
+      : "%"
+  }
+/>
+      <button
+        className="btn-secondary"
+        onClick={() => setActiveKpi(null)}
+      >
+        Zavrieť
+      </button>
+    </div>
+  </div>
+)}
+
  {/* 🔥 БЛОК ПОД KPI */}
   <div className="device-actions">
 
@@ -417,57 +507,97 @@ const handleResetDevice = () => {
       </div>
       {/* 🔌 CONNECTED DEVICE CARD */}
 {savedDevice && (
-  <div className="device-card">
-    <div className="device-card-header">
-     <span
-  className="device-title plant-click"
-  onClick={() => setShowAnalytics(true)}
->
-  🌱 {savedDevice.deviceName}
-</span>
 
+  <div className="device-card">
+
+    {/* HEADER */}
+    <div className="device-card-header">
+      <span
+        className="device-title plant-click"
+        onClick={() => setShowAnalytics(true)}
+      >
+        🌱 {savedDevice.deviceName}
+      </span>
     </div>
 
     <div className="device-grid">
-      <div className="device-metric">
-        <span>🌡 Temp</span>
-        <strong>{sensor?.air_temp ?? "--"} °C</strong>
-      </div>
+  {/* 🌡 Air temperature */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("air_temp")}
+  >
+    <span>🌡 Temp</span>
+    <strong>{sensor?.air_temp ?? "--"} °C</strong>
+  </div>
 
-      <div className="device-metric">
-        <span>💧 Humidity</span>
-        <strong>{sensor?.air_hum ?? "--"} %</strong>
-      </div>
+  {/* 💧 Air humidity */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("air_hum")}
+  >
+    <span>💧 Humidity</span>
+    <strong>{sensor?.air_hum ?? "--"} %</strong>
+  </div>
 
-      <div className="device-metric">
-        <span>🌱 Soil</span>
-        <strong>{sensor?.soil ?? "--"}</strong>
-      </div>
+  {/* 🌱 Soil */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("soil")}
+  >
+    <span>🌱 Soil</span>
+    <strong>{sensor?.soil ?? "--"}</strong>
+  </div>
 
-      <div className="device-metric">
-        <span>💡 Light</span>
-        <strong>{sensor?.light?.toFixed(1) ?? "--"} lx</strong>
-      </div>
-    </div>
+  {/* 💡 Light */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("light")}
+  >
+    <span>💡 Light</span>
+    <strong>{sensor?.light?.toFixed(1) ?? "--"} lx</strong>
+  </div>
 
-<div className="device-footer">
-  <span>
-    Культура: <strong>{savedDevice?.plantName ?? "—"}</strong>
-  </span>
+  {/* 🚰 Water temperature */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("water_temp")}
+  >
+    <span>🚰 Water</span>
+    <strong>{sensor?.water_temp ?? "--"} °C</strong>
+  </div>
 
+  {/* 🌬 Air pressure */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("air_press")}
+  >
+    <span>🌬 Pressure</span>
+    <strong>{sensor?.air_press ?? "--"} hPa</strong>
+  </div>
 
-
-  <button className="device-reset" onClick={handleResetDevice}>
-    🔄 Reset
-  </button>
+  {/* 🧪 Gas */}
+  <div
+    className="device-metric"
+    onClick={() => setActiveKpi("gas")}
+  >
+    <span>🧪 Gas</span>
+    <strong>{sensor?.gas ?? "--"}</strong>
+  </div>
 </div>
-<div style={{ color: "red", fontSize: 12 }}>
-  DEBUG savedDevice: {JSON.stringify(savedDevice)}
-</div>
 
+     <div className="device-footer">
+    <span>
+      Plodina: <strong>{savedDevice?.plantName ?? "—"}</strong>
+    </span>
+
+    <button className="device-reset" onClick={handleResetDevice}>
+      🔄 Reset
+    </button>
+  </div>
 
   </div>
 )}
+
 {showAnalytics && (
   <div className="modal-overlay" onClick={() => setShowAnalytics(false)}>
     <div

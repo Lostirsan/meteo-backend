@@ -19,19 +19,21 @@
   margin-top: auto; /* ⬅️ ВАЖНО: прижимает к низу */
 }
 
-/* LEFT WEATHER */
 .weather-panel {
   width: 260px;
+  height: calc(100vh - 64px); /* 🔥 КЛЮЧ */
   background: linear-gradient(180deg, #6dbf8b, #1b3a2e);
   color: white;
   padding: 24px;
-
+ position: relative;
+  z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 24px;               /* ⬅ расстояние между блоками */
-height: 64%;
+  gap: 24px;
+
   border-radius: 0 20px 20px 0;
 }
+
 
 .weather-temp {
   font-size: 64px;
@@ -76,9 +78,10 @@ height: 64%;
 
 
 .kpi-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+  z-index: 20;
 }
+
 
 
 /* KPI CARD */
@@ -87,7 +90,8 @@ height: 64%;
   color: var(--text-main);
   padding: 32px;
   border-radius: 20px;
-
+  position: relative;
+  z-index: 21;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -333,7 +337,7 @@ background: var(--bg-card);
   align-self: flex-start;
 
   margin-top: 59px;
-   max-width: 1200px;      /* ⬅ аккуратная ширина */
+   max-width: 15000px;      /* ⬅ аккуратная ширина */
 
   margin: 40px auto;     /* ⬅ ВОТ ОНА, НАСТОЯЩАЯ ЦЕНТРОВКА */
 
@@ -364,7 +368,7 @@ background: var(--bg-card);
 
 .device-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 32px;
 
   justify-items: center;   /* ⬅ центр по горизонтали */
@@ -497,14 +501,14 @@ background: var(--bg-card);
   position: fixed;
   bottom: 32px;
   left: 50%;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%);
 
-  width: 680px;              /* ⬅ ШИРЕ */
-  max-width: 92vw;
-  height: 160px;             /* ⬅ ВЫШЕ */
+  width: calc(100% - 120px);   /* 🔥 НА ВСЮ ШИРИНУ */
+  max-width: 1400px;           /* 🔥 аккуратный предел */
 
+  height: 180px;               /* ⬆ выше */
   border: 2px dashed #2ecc71;
-  border-radius: 20px;
+  border-radius: 22px;
 
   display: flex;
   flex-direction: column;
@@ -622,4 +626,49 @@ body.dark .header {
   padding: 14px;
   font-size: 16px;
   border-radius: 12px;
+}
+.weekly-chart {
+  margin-top: 20px;
+}
+
+.weekly-chart h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  height: 220px;
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 16px;
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-bar {
+  width: 100%;
+  background: #ef4444;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.3s ease;
+}
+
+.chart-day {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.chart-value {
+  font-size: 12px;
+  opacity: 0.7;
 }
