@@ -3,16 +3,17 @@ import json
 import time
 import paho.mqtt.client as mqtt
 from datetime import datetime
+import os
 
-DB_HOST = "postgres"
-DB_PORT = 5432
-DB_NAME = "plant_monitoring"
-DB_USER = "postgres"
-DB_PASSWORD = "postgres"
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = int(os.getenv("DB_PORT"))
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-MQTT_HOST = "mqtt"
-MQTT_PORT = 1883
-MQTT_TOPIC = "greenhouse/#"
+MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
+MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
+MQTT_TOPIC = os.getenv("MQTT_TOPIC", "greenhouse/#")
 
 def get_conn():
     return psycopg2.connect(
