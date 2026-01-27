@@ -44,7 +44,14 @@ type Plant = {
 
   light_min: number;
   light_max: number;
+
+  air_press_min: number;
+  air_press_max: number;
+
+  gas_min: number;
+  gas_max: number;
 };
+
 
 
 export default function Home() {
