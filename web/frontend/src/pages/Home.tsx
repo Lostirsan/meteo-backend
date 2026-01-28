@@ -6,12 +6,12 @@ import WeeklyChart from "../components/WeeklyChart";
 import DevicesModal from "../components/DevicesModal";
 
 type Weather = {
-  temp: number;
-  humidity: number;
-  wind: number;
-  description: string;
-  icon: string;
+  date: string | null;
+  temp: number | null;
+  humidity: number | null;
+  wind_speed: number | null;
 };
+
 
 type Sensor = {
   time: string;
@@ -322,9 +322,10 @@ const metricClass = (bad: boolean) =>
     <div className="weather-panel">
       {weather && (
         <>
-          <div className="weather-temp">{Math.round(weather.temp)}°</div>
+          <div className="weather-temp">
+  {weather.temp != null ? Math.round(weather.temp) : "—"}°
+</div>
           <div className="weather-city">Košice</div>
-          <div className="weather-desc">{weather.description}</div>
 
           <div className="weather-date">
             <div>{weekday}</div>
@@ -333,14 +334,11 @@ const metricClass = (bad: boolean) =>
 
           <div className="weather-stats">
             <div>💧 {weather.humidity}%</div>
-            <div>💨 {weather.wind} m/s</div>
-          </div>
+            <div>
+  💨 {weather.wind_speed != null ? weather.wind_speed : "—"} m/s
+</div>
 
-          <img
-            className="weather-icon"
-            src={`https://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-            alt="weather"
-          />
+          </div>
 
           <div className="weather-spacer" />
 
