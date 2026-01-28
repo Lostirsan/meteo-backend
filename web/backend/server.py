@@ -29,17 +29,14 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 def get_conn():
     try:
-        return psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-        )
-    except OperationalError as e:
+        return psycopg2.connect(DATABASE_URL)
+    except OperationalError:
         raise HTTPException(status_code=500, detail="Database connection failed")
+
 
 
 # ===== MODELS =====
