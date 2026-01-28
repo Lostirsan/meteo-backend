@@ -298,6 +298,14 @@ const handleResetDevice = () => {
             <button onClick={() => setDevicesOpen(true)}>Zariadenia</button>
             <button onClick={() => setShowSettings(true)}>Nastavenia</button>
           </div>
+
+            <div
+    className="add-device-card"
+    onClick={() => setShowConnect(true)}
+  >
+    <div className="add-device-plus">+</div>
+    <div className="add-device-text">Pripojiť zariadenie</div>
+  </div>
         </>
       )}
     </div>
@@ -555,13 +563,7 @@ const handleResetDevice = () => {
   onClose={() => setDevicesOpen(false)}
   device={savedDevice}   // 👈 то же устройство, что в device-card
 />
-  <div
-    className="add-device-card"
-    onClick={() => setShowConnect(true)}
-  >
-    <div className="add-device-plus">+</div>
-    <div className="add-device-text">Pripojiť zariadenie</div>
-  </div>
+
 
     </AppLayout>
   );
