@@ -1,11 +1,14 @@
 import os
 import psycopg2
 import requests
+import json
 from psycopg2 import OperationalError
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from paho.mqtt import client as mqtt
 
 app = FastAPI()
 
@@ -34,6 +37,14 @@ def get_conn():
     except OperationalError:
         raise HTTPException(status_code=500, detail="Database connection failed")
 
+# ===== MQTT =====
+MQTT_BROKER = os.getenv("MQTT_BROKER", "broker.hivemq.com")
+MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
+
+mqtt_client = mqtt.Client(client_id="backend_controller")
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
+mqtt_client.loop_start()
+
 # ===== MODELS =====
 class AuthData(BaseModel):
     username: str
@@ -48,6 +59,10 @@ class PicoMeasurementIn(BaseModel):
     light: float
     air_press: float | None = None
     gas: float | None = None
+
+class DeviceCommand(BaseModel):
+    device_id: str
+    command: dict
 
 # ===== WEATHER =====
 @app.get("/api/weather")
@@ -161,6 +176,22 @@ def receive_measurement(data: PicoMeasurementIn):
     conn.close()
 
     return {"status": "ok"}
+
+# ===== DEVICE COMMAND (🔥 НОВОЕ) =====
+@app.post("/api/device/command")
+def send_device_command(data: DeviceCommand):
+    topic = f"greenhouse/{data.device_id}/cmd"
+
+    try:
+        mqtt_client.publish(topic, json.dumps(data.command))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="MQTT publish failed")
+
+    return {
+        "status": "sent",
+        "topic": topic,
+        "command": data.command,
+    }
 
 # ===== PLANTS =====
 @app.get("/api/plants")
