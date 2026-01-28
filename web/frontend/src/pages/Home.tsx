@@ -164,15 +164,18 @@ useEffect(() => {
       setPlantsError(null);
 
       try {
-        const res = await fetch("http://localhost:3001/api/plants");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const res = await fetch(`https://meteo-backend-production-3f91.up.railway.app/api/plants`);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        if (!Array.isArray(data)) {
-          throw new Error("Plants response is not an array");
-        }
+const data = await res.json();
 
-        setPlants(data);
+if (!Array.isArray(data)) {
+  console.error("Plants API returned:", data);
+  throw new Error("Plants response is not array");
+}
+
+setPlants(data);
+
 
         // если ничего не выбрано — поставим первый вариант
         if (data.length > 0 && selectedPlantId === "") {
@@ -467,13 +470,16 @@ const handleResetDevice = () => {
               {/* 🌿 PLANT SELECT */}
               <div className="plant-row">
                 <select
-                  className="plant-select"
-                  value={selectedPlantId}
-                  onChange={e =>
-                    setSelectedPlantId(e.target.value ? Number(e.target.value) : "")
-                  }
-                  disabled={plantsLoading || plants.length === 0}
-                >
+  className="plant-select"
+  value={selectedPlantId}
+  onChange={e =>
+    setSelectedPlantId(
+      e.target.value ? Number(e.target.value) : ""
+    )
+  }
+  disabled={plantsLoading}
+>
+
                   {plantsLoading && <option value="">Načítavam kultúry...</option>}
 
                   {!plantsLoading && plants.length === 0 && (
