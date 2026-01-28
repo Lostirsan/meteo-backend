@@ -1,16 +1,24 @@
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 import psycopg2
 from psycopg2 import OperationalError
 
 app = FastAPI()
 
 # ===== CORS =====
+# ❗ ВАЖНО: нельзя allow_origins=["*"] вместе с allow_credentials=True
+# Указываем ЯВНО origin фронта
+
+FRONTEND_ORIGIN = os.getenv(
+    "FRONTEND_ORIGIN",
+    "https://mindful-reverence-production-2a76.up.railway.app"
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # для Railway
+    allow_origins=[FRONTEND_ORIGIN],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,6 +31,7 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
+
 def get_conn():
     try:
         return psycopg2.connect(
@@ -33,7 +42,7 @@ def get_conn():
             password=DB_PASSWORD
         )
     except OperationalError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Database connection error")
 
 
 # ===== MODELS =====
@@ -59,10 +68,12 @@ def register(data: AuthData):
 
     cur.execute("SELECT id FROM users WHERE username=%s", (data.username,))
     if cur.fetchone():
+        cur.close()
+        conn.close()
         raise HTTPException(status_code=409, detail="User already exists")
 
     cur.execute(
-        "INSERT INTO users (username, password) VALUES (%s,%s)",
+        "INSERT INTO users (username, password) VALUES (%s, %s)",
         (data.username, data.password)
     )
     conn.commit()
@@ -85,6 +96,8 @@ def login(data: AuthData):
     row = cur.fetchone()
 
     if not row:
+        cur.close()
+        conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     cur.close()
@@ -107,7 +120,8 @@ def receive_measurement(data: PicoMeasurementIn):
 
     cur.execute(
         """
-        INSERT INTO measurements (time, device_id, air_temp, air_hum, water_temp, soil, light)
+        INSERT INTO measurements
+        (time, device_id, air_temp, air_hum, water_temp, soil, light)
         VALUES (NOW(), %s, %s, %s, %s, %s, %s)
         """,
         (
@@ -127,6 +141,7 @@ def receive_measurement(data: PicoMeasurementIn):
     return {"status": "ok"}
 
 
+# ===== HEALTH =====
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
