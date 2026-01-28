@@ -19,7 +19,7 @@ export default function AuthCard({ mode = "login" }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const api = import.meta.env.VITE_API_URL
+  const api = 'https://meteo-backend-production-3f91.up.railway.app/api'
     console.log("API FROM ENV:", api);
 
   const doLogin = async (u: string, p: string) => {
