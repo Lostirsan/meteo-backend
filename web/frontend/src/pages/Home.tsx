@@ -135,25 +135,33 @@ useEffect(() => {
 
   // weather + sensors loop
   useEffect(() => {
-    fetch("http://localhost:3001/api/weather")
+    fetch("https://meteo-backend-production-3f91.up.railway.app/api/weather")
       .then(r => r.json())
       .then(setWeather)
       .catch(console.error);
 
     const loadSensors = async () => {
-      try {
-        const res = await fetch('https://meteo-backend-production-3f91.up.railway.app/api/measurements/latest?device_id=${savedDevice.deviceId}');
-        const json = await res.json();
-        if (json.greenhouse_1) setSensor(json.greenhouse_1);
-      } catch (e) {
-        console.error("Sensor fetch error", e);
-      }
-    };
+    try {
+      const res = await fetch(
+        `https://meteo-backend-production-3f91.up.railway.app/api/measurements/latest?device_id=${savedDevice.deviceId}`
+      );
 
-    loadSensors();
-    const i = setInterval(loadSensors, 5000);
-    return () => clearInterval(i);
-  }, []);
+      if (!res.ok) {
+        console.error("Measurements fetch failed", res.status);
+        return;
+      }
+
+      const json = await res.json();
+      if (json) setSensor(json);
+    } catch (e) {
+      console.error("Sensor fetch error", e);
+    }
+  };
+
+  loadSensors();
+  const i = setInterval(loadSensors, 5000);
+  return () => clearInterval(i);
+}, [savedDevice]);
 
   // load plants when modal opens
   useEffect(() => {

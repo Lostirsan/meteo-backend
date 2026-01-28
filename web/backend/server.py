@@ -46,6 +46,40 @@ class PicoMeasurementIn(BaseModel):
     soil: int
     light: float
 
+# ===== WEATHER =====
+@app.get("/api/weather")
+def get_weather():
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    city = os.getenv("OPENWEATHER_CITY", "Kosice")
+    units = os.getenv("OPENWEATHER_UNITS", "metric")
+    lang = os.getenv("OPENWEATHER_LANG", "en")
+
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Weather API key missing")
+
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "appid": api_key,
+        "units": units,
+        "lang": lang,
+    }
+
+    try:
+        r = requests.get(url, params=params, timeout=5)
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail="Weather service error")
+
+    return {
+        "temp": data["main"]["temp"],
+        "humidity": data["main"]["humidity"],
+        "wind": data["wind"]["speed"],
+        "description": data["weather"][0]["description"],
+        "icon": data["weather"][0]["icon"],
+    }
+
 # ===== AUTH =====
 @app.post("/api/register")
 def register(data: AuthData):
