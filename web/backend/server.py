@@ -1,25 +1,22 @@
 import os
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import psycopg2
 from psycopg2 import OperationalError
 
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
 app = FastAPI()
 
-# ===== CORS =====
-# ❗ ВАЖНО: нельзя allow_origins=["*"] вместе с allow_credentials=True
-# Указываем ЯВНО origin фронта
-
-FRONTEND_ORIGIN = os.getenv(
-    "FRONTEND_ORIGIN",
-    "https://mindful-reverence-production-2a76.up.railway.app"
-)
-
+# ===== CORS (КРИТИЧНО) =====
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
-    allow_credentials=True,
+    allow_origins=[
+        "https://mindful-reverence-production-2a76.up.railway.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -39,10 +36,10 @@ def get_conn():
             port=DB_PORT,
             database=DB_NAME,
             user=DB_USER,
-            password=DB_PASSWORD
+            password=DB_PASSWORD,
         )
     except OperationalError as e:
-        raise HTTPException(status_code=500, detail="Database connection error")
+        raise HTTPException(status_code=500, detail="Database connection failed")
 
 
 # ===== MODELS =====
@@ -74,7 +71,7 @@ def register(data: AuthData):
 
     cur.execute(
         "INSERT INTO users (username, password) VALUES (%s, %s)",
-        (data.username, data.password)
+        (data.username, data.password),
     )
     conn.commit()
 
@@ -91,7 +88,7 @@ def login(data: AuthData):
 
     cur.execute(
         "SELECT id, username FROM users WHERE username=%s AND password=%s",
-        (data.username, data.password)
+        (data.username, data.password),
     )
     row = cur.fetchone()
 
@@ -107,8 +104,8 @@ def login(data: AuthData):
         "success": True,
         "user": {
             "id": row[0],
-            "username": row[1]
-        }
+            "username": row[1],
+        },
     }
 
 
@@ -130,8 +127,8 @@ def receive_measurement(data: PicoMeasurementIn):
             data.air_hum,
             data.water_temp,
             data.soil,
-            data.light
-        )
+            data.light,
+        ),
     )
 
     conn.commit()
