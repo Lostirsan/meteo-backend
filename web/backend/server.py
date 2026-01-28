@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# ===== CORS (КРИТИЧНО) =====
+# ===== CORS =====
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -21,15 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ===== ENV =====
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = int(os.getenv("DB_PORT", 5432))
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-
-
+# ===== DATABASE =====
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
 
 def get_conn():
     try:
@@ -37,13 +33,10 @@ def get_conn():
     except OperationalError:
         raise HTTPException(status_code=500, detail="Database connection failed")
 
-
-
 # ===== MODELS =====
 class AuthData(BaseModel):
     username: str
     password: str
-
 
 class PicoMeasurementIn(BaseModel):
     device_id: str
@@ -52,7 +45,6 @@ class PicoMeasurementIn(BaseModel):
     water_temp: float
     soil: int
     light: float
-
 
 # ===== AUTH =====
 @app.post("/api/register")
@@ -74,9 +66,7 @@ def register(data: AuthData):
 
     cur.close()
     conn.close()
-
     return {"success": True}
-
 
 @app.post("/api/login")
 def login(data: AuthData):
@@ -104,7 +94,6 @@ def login(data: AuthData):
             "username": row[1],
         },
     }
-
 
 # ===== DATA FROM PICO =====
 @app.post("/data")
@@ -134,6 +123,36 @@ def receive_measurement(data: PicoMeasurementIn):
 
     return {"status": "ok"}
 
+# ===== LATEST DATA FOR FRONTEND =====
+@app.get("/api/latest-data")
+def latest_data():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT air_temp, air_hum, water_temp, soil, light, time
+        FROM measurements
+        ORDER BY time DESC
+        LIMIT 1
+        """
+    )
+
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not row:
+        return {}
+
+    return {
+        "air_temp": row[0],
+        "air_hum": row[1],
+        "water_temp": row[2],
+        "soil": row[3],
+        "light": row[4],
+        "time": row[5].isoformat(),
+    }
 
 # ===== HEALTH =====
 @app.get("/api/health")

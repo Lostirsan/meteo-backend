@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import "./devicesModal.css";
 
 type Device = {
-  deviceId: string;     // 👈 ВВЕДЁННЫЙ ID
-  deviceName: string;   // 👈 НАЗВАНИЕ
+  deviceId: string;
+  deviceName: string;
+  plantName?: string;
 };
 
 type Props = {
@@ -15,10 +16,10 @@ type Props = {
 export default function DevicesModal({ open, onClose, device }: Props) {
   const [visible, setVisible] = useState(false);
 
-  /* ===== плавное открытие / закрытие ===== */
   useEffect(() => {
-    if (open) setVisible(true);
-    else {
+    if (open) {
+      setVisible(true);
+    } else {
       const t = setTimeout(() => setVisible(false), 300);
       return () => clearTimeout(t);
     }
@@ -35,26 +36,32 @@ export default function DevicesModal({ open, onClose, device }: Props) {
         className={`devices-modal ${open ? "show" : "hide"}`}
         onClick={e => e.stopPropagation()}
       >
-       <h2>📟 Подключённое устройство</h2>
+        <h2>📟 Подключённое устройство</h2>
 
-{device ? (
-  <div className="device-info">
-    <div className="device-row">
-      <span>🌱 Название устройства</span>
-      <strong>{device.deviceName}</strong>
-    </div>
+        {device ? (
+          <div className="device-info">
+            <div className="device-row">
+              <span>🌱 Название устройства</span>
+              <strong>{device.deviceName}</strong>
+            </div>
 
-    <div className="device-row">
-      <span>🆔 ID устройства</span>
-      <strong>{device.deviceId}</strong>
-    </div>
-  </div>
-) : (
-  <div className="device-empty">
-    Нет подключённых устройств
-  </div>
-)}
+            <div className="device-row">
+              <span>🆔 ID устройства</span>
+              <strong>{device.deviceId}</strong>
+            </div>
 
+            {device.plantName && (
+              <div className="device-row">
+                <span>🌾 Культура</span>
+                <strong>{device.plantName}</strong>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="device-empty">
+            Нет подключённых устройств
+          </div>
+        )}
 
         <button className="devices-close" onClick={onClose}>
           Закрыть
