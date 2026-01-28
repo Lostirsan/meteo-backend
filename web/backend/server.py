@@ -123,6 +123,32 @@ def receive_measurement(data: PicoMeasurementIn):
 
     return {"status": "ok"}
 
+# ===== PLANTS =====
+@app.get("/api/plants")
+def get_plants():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT id, name
+        FROM plants
+        ORDER BY name ASC
+        """
+    )
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return [
+        {
+            "id": row[0],
+            "name": row[1],
+        }
+        for row in rows
+    ]
+
 # ===== LATEST DATA FOR FRONTEND =====
 @app.get("/api/latest-data")
 def latest_data():
