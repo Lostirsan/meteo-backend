@@ -299,13 +299,12 @@ const handleResetDevice = () => {
             <button onClick={() => setShowSettings(true)}>Nastavenia</button>
           </div>
 
-            <div
-    className="add-device-card"
+             <button
+    className="sidebar-add-device"
     onClick={() => setShowConnect(true)}
   >
-    <div className="add-device-plus">+</div>
-    <div className="add-device-text">Pripojiť zariadenie</div>
-  </div>
+    ➕ Pripojiť zariadenie
+  </button>
         </>
       )}
     </div>
