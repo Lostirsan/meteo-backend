@@ -98,10 +98,17 @@ const user = useMemo(() => {
   }
 }, []);
 
-const storageKey = user?.username ? `device_${user.username}` : null;
-
 // ================= SAVED DEVICE (REACTIVE) =================
 const [savedDevice, setSavedDevice] = useState<any>(null);
+
+const selectedPlant = useMemo(() => {
+  if (!savedDevice) return null
+  return plants.find(p => p.id === savedDevice.plantId) || null
+}, [plants, savedDevice])
+
+const storageKey = user?.username ? `device_${user.username}` : null;
+
+
 
 const [devicePower, setDevicePower] = useState(false);
 const [powerLoading, setPowerLoading] = useState(false);
@@ -295,7 +302,17 @@ const toggleDevicePower = async () => {
   }
 };
 
+const isOutOfRange = (
+  value: number | undefined,
+  min?: number,
+  max?: number
+) => {
+  if (value === undefined || min === undefined || max === undefined) return false
+  return value < min || value > max
+}
 
+const metricClass = (bad: boolean) =>
+  bad ? "metric-value danger" : "metric-value ok"
 
   return (
    <AppLayout>
@@ -486,7 +503,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("air_temp")}
   >
     <span>🌡 Temp</span>
-    <strong>{sensor?.air_temp ?? "--"} °C</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.air_temp,
+      selectedPlant?.air_temp_min,
+      selectedPlant?.air_temp_max
+    )
+  )}
+>
+  {sensor?.air_temp ?? "--"} °C
+</strong>
+
   </div>
 
   {/* 💧 Air humidity */}
@@ -495,7 +523,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("air_hum")}
   >
     <span>💧 Humidity</span>
-    <strong>{sensor?.air_hum ?? "--"} %</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.air_hum,
+      selectedPlant?.air_hum_min,
+      selectedPlant?.air_hum_max
+    )
+  )}
+>
+  {sensor?.air_hum ?? "--"} %
+</strong>
+
   </div>
 
   {/* 🌱 Soil */}
@@ -504,7 +543,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("soil")}
   >
     <span>🌱 Soil</span>
-    <strong>{sensor?.soil ?? "--"}</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.soil,
+      selectedPlant?.soil_min,
+      selectedPlant?.soil_max
+    )
+  )}
+>
+  {sensor?.soil ?? "--"}
+</strong>
+
   </div>
 
   {/* 💡 Light */}
@@ -513,7 +563,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("light")}
   >
     <span>💡 Light</span>
-    <strong>{sensor?.light?.toFixed(1) ?? "--"} lx</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.light,
+      selectedPlant?.light_min,
+      selectedPlant?.light_max
+    )
+  )}
+>
+  {sensor?.light?.toFixed(1) ?? "--"} lx
+</strong>
+
   </div>
 
   {/* 🚰 Water temperature */}
@@ -522,7 +583,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("water_temp")}
   >
     <span>🚰 Water</span>
-    <strong>{sensor?.water_temp ?? "--"} °C</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.water_temp,
+      selectedPlant?.water_temp_min,
+      selectedPlant?.water_temp_max
+    )
+  )}
+>
+  {sensor?.water_temp ?? "--"} °C
+</strong>
+
   </div>
 
   {/* 🌬 Air pressure */}
@@ -531,7 +603,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("air_press")}
   >
     <span>🌬 Pressure</span>
-    <strong>{sensor?.air_press ?? "--"} hPa</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.air_press,
+      selectedPlant?.air_press_min,
+      selectedPlant?.air_press_max
+    )
+  )}
+>
+  {sensor?.air_press ?? "--"} hPa
+</strong>
+
   </div>
 
   {/* 🧪 Gas */}
@@ -540,7 +623,18 @@ const toggleDevicePower = async () => {
     onClick={() => setActiveKpi("gas")}
   >
     <span>🧪 Gas</span>
-    <strong>{sensor?.gas ?? "--"}</strong>
+    <strong
+  className={metricClass(
+    isOutOfRange(
+      sensor?.gas,
+      selectedPlant?.gas_min,
+      selectedPlant?.gas_max
+    )
+  )}
+>
+  {sensor?.gas ?? "--"}
+</strong>
+
   </div>
 </div>
 
