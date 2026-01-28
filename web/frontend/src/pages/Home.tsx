@@ -103,6 +103,8 @@ const storageKey = user?.username ? `device_${user.username}` : null;
 // ================= SAVED DEVICE (REACTIVE) =================
 const [savedDevice, setSavedDevice] = useState<any>(null);
 
+const [devicePower, setDevicePower] = useState(false);
+const [powerLoading, setPowerLoading] = useState(false);
 // ================= RESTORE SAVED DEVICE =================
 useEffect(() => {
   if (!storageKey) {
@@ -260,6 +262,37 @@ const handleResetDevice = () => {
   setDeviceName("");
   setDeviceId("");
   setSelectedPlantId("");
+};
+
+const toggleDevicePower = async () => {
+  if (!savedDevice) return;
+
+  const newState = !devicePower;
+  setPowerLoading(true);
+
+  try {
+    const res = await fetch(
+      "https://meteo-backend-production-3f91.up.railway.app/api/device/command",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          device_id: savedDevice.deviceId,
+          command: {
+            led: newState ? "on" : "off"
+          }
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error("Command failed");
+
+    setDevicePower(newState);
+  } catch (e) {
+    alert("Nepodarilo sa odoslať príkaz");
+  } finally {
+    setPowerLoading(false);
+  }
 };
 
 
@@ -512,14 +545,27 @@ const handleResetDevice = () => {
 </div>
 
      <div className="device-footer">
-    <span>
-      Plodina: <strong>{savedDevice?.plantName ?? "—"}</strong>
-    </span>
+  <span>
+    Plodina: <strong>{savedDevice?.plantName ?? "—"}</strong>
+  </span>
 
-    <button className="device-reset" onClick={handleResetDevice}>
-      🔄 Reset
-    </button>
-  </div>
+  <button
+    className={`device-toggle ${devicePower ? "on" : "off"}`}
+    onClick={toggleDevicePower}
+    disabled={powerLoading}
+  >
+    {powerLoading
+      ? "⏳"
+      : devicePower
+      ? "🟢 Zapnuté"
+      : "⚪ Vypnuté"}
+  </button>
+
+  <button className="device-reset" onClick={handleResetDevice}>
+    🔄 Reset
+  </button>
+</div>
+
 
   </div>
 )}

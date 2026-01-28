@@ -237,6 +237,30 @@
   font-weight: 600;
 }
 
+.device-toggle {
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.device-toggle.on {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.device-toggle.off {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.device-toggle:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-secondary {
   flex: 1;
   background: #e5e7eb;
