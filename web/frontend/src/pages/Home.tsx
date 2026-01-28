@@ -88,10 +88,6 @@ const [plantsLoading, setPlantsLoading] = useState(false);
 const [plantsError, setPlantsError] = useState<string | null>(null);
 const [selectedPlantId, setSelectedPlantId] = useState<number | "">("");
 
-// ✅ ПОСЛЕ этого
-const selectedPlant = useMemo(() => {
-  return plants.find(p => p.id === selectedPlantId) || null;
-}, [plants, selectedPlantId]);
 
 
 const user = useMemo(() => {
@@ -309,7 +305,6 @@ const handleResetDevice = () => {
 
         {/* 📊 DASHBOARD */}
 <div className="dashboard">
-
 
 
 
