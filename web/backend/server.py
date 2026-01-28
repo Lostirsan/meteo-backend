@@ -41,7 +41,7 @@ def get_conn():
 MQTT_BROKER = os.getenv("MQTT_BROKER", "broker.hivemq.com")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
 
-mqtt_client = mqtt.Client(client_id="backend_controller")
+mqtt_client = mqtt.Client(client_id="backend_controller", protocol=mqtt.MQTTv311)
 mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 mqtt_client.loop_start()
 
@@ -64,7 +64,7 @@ class DeviceCommand(BaseModel):
     device_id: str
     command: dict
 
-# ===== WEATHER =====
+# ===== WEATHER (✅ FIXED) =====
 @app.get("/api/weather")
 def get_weather():
     api_key = os.getenv("OPENWEATHER_API_KEY")
@@ -72,30 +72,52 @@ def get_weather():
     units = os.getenv("OPENWEATHER_UNITS", "metric")
     lang = os.getenv("OPENWEATHER_LANG", "en")
 
+    lat = os.getenv("OPENWEATHER_LAT")
+    lon = os.getenv("OPENWEATHER_LON")
+
     if not api_key:
         raise HTTPException(status_code=500, detail="Weather API key missing")
 
     url = "https://api.openweathermap.org/data/2.5/weather"
+
     params = {
-        "q": city,
         "appid": api_key,
         "units": units,
         "lang": lang,
     }
+
+    if lat and lon:
+        params["lat"] = lat
+        params["lon"] = lon
+    else:
+        params["q"] = city
 
     try:
         r = requests.get(url, params=params, timeout=5)
         r.raise_for_status()
         data = r.json()
     except Exception:
-        raise HTTPException(status_code=502, detail="Weather service error")
+        raise HTTPException(status_code=502, detail="Weather service unreachable")
+
+    main = data.get("main")
+    weather = data.get("weather")
+    wind = data.get("wind")
+
+    if not main or not weather or not isinstance(weather, list):
+        return {
+            "temp": None,
+            "humidity": None,
+            "wind": None,
+            "description": None,
+            "icon": None,
+        }
 
     return {
-        "temp": data["main"]["temp"],
-        "humidity": data["main"]["humidity"],
-        "wind": data["wind"]["speed"],
-        "description": data["weather"][0]["description"],
-        "icon": data["weather"][0]["icon"],
+        "temp": main.get("temp"),
+        "humidity": main.get("humidity"),
+        "wind": wind.get("speed") if wind else None,
+        "description": weather[0].get("description"),
+        "icon": weather[0].get("icon"),
     }
 
 # ===== AUTH =====
@@ -177,14 +199,14 @@ def receive_measurement(data: PicoMeasurementIn):
 
     return {"status": "ok"}
 
-# ===== DEVICE COMMAND (🔥 НОВОЕ) =====
+# ===== DEVICE COMMAND =====
 @app.post("/api/device/command")
 def send_device_command(data: DeviceCommand):
     topic = f"greenhouse/{data.device_id}/cmd"
 
     try:
         mqtt_client.publish(topic, json.dumps(data.command))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="MQTT publish failed")
 
     return {
@@ -199,13 +221,7 @@ def get_plants():
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute(
-        """
-        SELECT id, name
-        FROM plants
-        ORDER BY name ASC
-        """
-    )
+    cur.execute("SELECT id, name FROM plants ORDER BY name ASC")
 
     rows = cur.fetchall()
     cur.close()
@@ -213,7 +229,7 @@ def get_plants():
 
     return [{"id": r[0], "name": r[1]} for r in rows]
 
-# ===== LATEST DATA FOR FRONTEND =====
+# ===== LATEST DATA =====
 @app.get("/api/latest-data")
 def latest_data():
     conn = get_conn()
@@ -244,41 +260,6 @@ def latest_data():
         "air_press": row[5],
         "gas": row[6],
         "time": row[7].isoformat(),
-    }
-
-# ===== LATEST MEASUREMENT BY DEVICE =====
-@app.get("/api/measurements/latest")
-def get_latest_measurement(device_id: str):
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-        SELECT time, air_temp, air_hum, water_temp, soil, light, air_press, gas
-        FROM measurements
-        WHERE device_id = %s
-        ORDER BY time DESC
-        LIMIT 1
-        """,
-        (device_id,),
-    )
-
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not row:
-        return None
-
-    return {
-        "time": row[0].isoformat(),
-        "air_temp": row[1],
-        "air_hum": row[2],
-        "water_temp": row[3],
-        "soil": row[4],
-        "light": row[5],
-        "air_press": row[6],
-        "gas": row[7],
     }
 
 # ===== HEALTH =====
