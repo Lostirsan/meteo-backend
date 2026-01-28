@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY web/backend ./backend
+COPY . .
 
-CMD ["sh", "-c", "uvicorn backend.server:app --host 0.0.0.0 --port 3001"]
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port 3001"]
