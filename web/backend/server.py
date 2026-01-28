@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import requests
 from psycopg2 import OperationalError
 
 from fastapi import FastAPI, HTTPException
@@ -45,6 +46,8 @@ class PicoMeasurementIn(BaseModel):
     water_temp: float
     soil: int
     light: float
+    air_press: float | None = None
+    gas: float | None = None
 
 # ===== WEATHER =====
 @app.get("/api/weather")
@@ -69,7 +72,7 @@ def get_weather():
         r = requests.get(url, params=params, timeout=5)
         r.raise_for_status()
         data = r.json()
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=502, detail="Weather service error")
 
     return {
@@ -138,8 +141,8 @@ def receive_measurement(data: PicoMeasurementIn):
     cur.execute(
         """
         INSERT INTO measurements
-        (time, device_id, air_temp, air_hum, water_temp, soil, light)
-        VALUES (NOW(), %s, %s, %s, %s, %s, %s)
+        (time, device_id, air_temp, air_hum, water_temp, soil, light, air_press, gas)
+        VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
             data.device_id,
@@ -148,6 +151,8 @@ def receive_measurement(data: PicoMeasurementIn):
             data.water_temp,
             data.soil,
             data.light,
+            data.air_press,
+            data.gas,
         ),
     )
 
@@ -175,13 +180,7 @@ def get_plants():
     cur.close()
     conn.close()
 
-    return [
-        {
-            "id": row[0],
-            "name": row[1],
-        }
-        for row in rows
-    ]
+    return [{"id": r[0], "name": r[1]} for r in rows]
 
 # ===== LATEST DATA FOR FRONTEND =====
 @app.get("/api/latest-data")
@@ -191,7 +190,7 @@ def latest_data():
 
     cur.execute(
         """
-        SELECT air_temp, air_hum, water_temp, soil, light, time
+        SELECT air_temp, air_hum, water_temp, soil, light, air_press, gas, time
         FROM measurements
         ORDER BY time DESC
         LIMIT 1
@@ -211,9 +210,12 @@ def latest_data():
         "water_temp": row[2],
         "soil": row[3],
         "light": row[4],
-        "time": row[5].isoformat(),
+        "air_press": row[5],
+        "gas": row[6],
+        "time": row[7].isoformat(),
     }
 
+# ===== LATEST MEASUREMENT BY DEVICE =====
 @app.get("/api/measurements/latest")
 def get_latest_measurement(device_id: str):
     conn = get_conn()
@@ -221,13 +223,13 @@ def get_latest_measurement(device_id: str):
 
     cur.execute(
         """
-        SELECT time, air_temp, air_hum, water_temp, soil, light
+        SELECT time, air_temp, air_hum, water_temp, soil, light, air_press, gas
         FROM measurements
         WHERE device_id = %s
         ORDER BY time DESC
         LIMIT 1
         """,
-        (device_id,)
+        (device_id,),
     )
 
     row = cur.fetchone()
@@ -238,12 +240,14 @@ def get_latest_measurement(device_id: str):
         return None
 
     return {
-        "time": row[0],
+        "time": row[0].isoformat(),
         "air_temp": row[1],
         "air_hum": row[2],
         "water_temp": row[3],
         "soil": row[4],
         "light": row[5],
+        "air_press": row[6],
+        "gas": row[7],
     }
 
 # ===== HEALTH =====
