@@ -142,7 +142,7 @@ useEffect(() => {
 
     const loadSensors = async () => {
       try {
-        const res = await fetch("http://192.168.0.147:8000/data");
+        const res = await fetch('https://meteo-backend-production-3f91.up.railway.app/api/measurements/latest?device_id=${savedDevice.deviceId}');
         const json = await res.json();
         if (json.greenhouse_1) setSensor(json.greenhouse_1);
       } catch (e) {

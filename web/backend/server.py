@@ -180,6 +180,38 @@ def latest_data():
         "time": row[5].isoformat(),
     }
 
+@app.get("/api/measurements/latest")
+def get_latest_measurement(device_id: str):
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT time, air_temp, air_hum, water_temp, soil, light
+        FROM measurements
+        WHERE device_id = %s
+        ORDER BY time DESC
+        LIMIT 1
+        """,
+        (device_id,)
+    )
+
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not row:
+        return None
+
+    return {
+        "time": row[0],
+        "air_temp": row[1],
+        "air_hum": row[2],
+        "water_temp": row[3],
+        "soil": row[4],
+        "light": row[5],
+    }
+
 # ===== HEALTH =====
 @app.get("/api/health")
 def health():
