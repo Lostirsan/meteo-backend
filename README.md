@@ -1,93 +1,172 @@
-# Mini meteorologicka stanica
+# IoT Meteorological Station for Smart Agriculture
 
+A distributed IoT system for monitoring environmental conditions in greenhouses and agricultural environments.  
+The system collects sensor data from a Raspberry Pi Pico W device and sends it to a backend server for storage, analysis, and visualization.
 
+---
 
-## Getting started
+## Overview
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The project consists of several services.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Device layer:
+- Raspberry Pi Pico W
+- Sensors:
+  - BME680 (temperature, humidity, pressure, air quality)
+  - BH1750 (light)
+  - DS18B20 (soil or external temperature)
+  - Soil moisture sensor
 
-## Add your files
+Server layer:
+- MQTT broker
+- FastAPI backend
+- PostgreSQL database
+- Redis (optional for caching)
+- React frontend dashboard
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
 
-```
-cd existing_repo
-git remote add origin https://git.kpi.fei.tuke.sk/yt787oa/mini-meteorologicka-stanica.git
-git branch -M main
-git push -uf origin main
-```
+## Architecture
 
-## Integrate with your tools
+Device → MQTT → Backend API → Database → Frontend
 
-- [ ] [Set up project integrations](https://git.kpi.fei.tuke.sk/yt787oa/mini-meteorologicka-stanica/-/settings/integrations)
+The microcontroller collects sensor readings and publishes them to MQTT topics.  
+The backend subscribes to topics, processes data, and stores it in PostgreSQL.  
+The frontend visualizes the data in real time.
 
-## Collaborate with your team
+---
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Tech Stack
 
-## Test and Deploy
+Backend:
+- Python
+- FastAPI
+- PostgreSQL
+- MQTT
+- Docker
 
-Use the built-in continuous integration in GitLab.
+Frontend:
+- React
+- Vite
+- Chart.js
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Device:
+- MicroPython
+- Raspberry Pi Pico W
 
-***
+Infrastructure:
+- Docker Compose
+- Cloud deployment (Railway / VPS / AWS compatible)
 
-# Editing this README
+---
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Features
 
-## Suggestions for a good README
+- Real-time sensor data collection
+- Remote monitoring dashboard
+- Historical data storage
+- Modular microservice architecture
+- Cloud-ready deployment
+- MQTT communication
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+---
 
-## Name
-Choose a self-explaining name for your project.
+## Project Structure
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+project-root/
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+backend/  
+&nbsp;&nbsp;&nbsp;&nbsp;app/  
+&nbsp;&nbsp;&nbsp;&nbsp;Dockerfile  
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+frontend/  
+&nbsp;&nbsp;&nbsp;&nbsp;src/  
+&nbsp;&nbsp;&nbsp;&nbsp;Dockerfile  
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+device/  
+&nbsp;&nbsp;&nbsp;&nbsp;pico_code.py  
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+docker-compose.yml  
+README.md  
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Requirements
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+To run the full system you will need:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- Docker and Docker Compose
+- MQTT broker (included in docker-compose if configured)
+- Raspberry Pi Pico W with MicroPython firmware
+- Sensor hardware (optional for simulation)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Important:  
+The system also requires firmware code running on the Raspberry Pi Pico W device.  
+The device is responsible for collecting sensor data and publishing it to MQTT topics.  
+Without the device code, the backend and frontend can run, but no real sensor data will be received.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+---
 
-## License
-For open source projects, say how it is licensed.
+## How to Run
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### 1. Clone repository
+git clone https://github.com/USERNAME/REPO_NAME.git  
+cd REPO_NAME  
+
+### 2. Start services
+docker-compose up --build  
+
+Backend will start on:  
+http://localhost:8000  
+
+Frontend:  
+http://localhost:5173  
+
+### 3. Upload firmware to Raspberry Pi Pico W
+
+- Flash MicroPython firmware
+- Copy the device code to the Pico W
+- Configure WiFi and MQTT broker address
+- Restart the device
+
+After startup, the device will begin sending data automatically.
+
+---
+
+## MQTT Topics
+
+Example topics:
+
+greenhouse/greenhouse_1  
+greenhouse/greenhouse_1/cmd  
+
+Payload example:
+
+{
+  "temperature": 23.4,
+  "humidity": 45,
+  "soil": 512,
+  "light": 300
+}
+
+---
+
+## Screenshots
+
+(Add screenshots here)
+
+Dashboard example:
+- charts
+- sensor values
+- device status
+
+---
+
+## Future Improvements
+
+- OTA firmware updates
+- Alerts and notifications
+- Mobile version
+- Multiple device support
+- AI-based predictions
+
